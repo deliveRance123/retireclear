@@ -46,7 +46,10 @@ class Config:
     
     # File Uploads
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB max request size
-    UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+    if os.environ.get('VERCEL'):
+        UPLOAD_FOLDER = os.path.join('/tmp', 'uploads')
+    else:
+        UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
     ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
     
     # OCR and Biometrics configuration
