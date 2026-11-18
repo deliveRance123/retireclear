@@ -15,7 +15,7 @@ def lookup():
     search_term = (request.args.get('q') or request.form.get('search_term') or '').strip()
     if not search_term:
         flash("Please enter a Certificate Number or Verification Token to verify.", "warning")
-        return redirect(url_for('index') + '#verify-search')
+        return redirect(url_for('verify_page'))
         
     cert = RetirementCertificate.query.filter(
         (RetirementCertificate.verification_token == search_term) |
@@ -26,7 +26,7 @@ def lookup():
         return redirect(url_for('certificates.public_verify', token=cert.verification_token))
     
     flash(f"No certificate found matching '{search_term}'. Please check the certificate number and try again.", "danger")
-    return redirect(url_for('index') + '#verify-search')
+    return redirect(url_for('verify_page'))
 
 @certificates_bp.route('/view/<int:certificate_id>')
 @login_required

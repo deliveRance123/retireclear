@@ -13,16 +13,14 @@
   
   <style>
     body {
-      padding-top: 64px; /* Space for fixed header */
+      padding-top: 64px;
       overflow-x: hidden;
       background-color: var(--warm-ivory);
       color: var(--charcoal);
     }
     .fixed-nav {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 0; left: 0; right: 0;
       min-height: 64px;
       z-index: 1040;
       background: var(--dark-evergreen);
@@ -33,51 +31,24 @@
     .text-white-hover:hover {
       color: #FFFFFF !important;
     }
-    @media (max-width: 767.98px) {
-      #landingNavbar {
-        background: var(--dark-evergreen);
-        padding: 1rem 0;
-        border-top: 1px solid rgba(220, 232, 223, 0.1);
-      }
-    }
     .hero-container {
       background: linear-gradient(135deg, var(--dark-evergreen) 0%, var(--primary-forest) 100%);
       color: var(--pure-white);
       padding: 4.5rem 1rem 5.5rem;
       position: relative;
     }
-    .search-card {
-      max-width: 650px;
-      margin: -2.75rem auto 0;
-      background: var(--pure-white);
-      border-radius: 16px;
-      padding: 1.75rem 2rem;
-      border: 1px solid var(--muted-sage);
-      box-shadow: 0 10px 32px rgba(16, 56, 46, 0.08);
-      position: relative;
-      z-index: 10;
-    }
-    .modern-input {
-      border: 1.5px solid var(--muted-sage);
-      border-radius: 10px;
-      padding: 0.65rem 1rem;
-      font-size: 0.95rem;
-      transition: all 0.2s ease;
-    }
-    .modern-input:focus {
-      border-color: var(--primary-forest);
-      box-shadow: 0 0 0 3px rgba(23, 76, 60, 0.12);
-    }
     .modern-btn {
       background: var(--primary-forest);
       color: var(--pure-white);
       border: none;
       border-radius: 10px;
-      padding: 0.65rem 1.4rem;
+      padding: 0.75rem 1.5rem;
       font-weight: 600;
       font-size: 0.95rem;
       transition: all 0.2s ease;
       box-shadow: 0 3px 8px rgba(16, 56, 46, 0.15);
+      text-decoration: none;
+      display: inline-block;
     }
     .modern-btn:hover {
       background: var(--dark-evergreen);
@@ -110,6 +81,96 @@
       font-size: 1.25rem;
       margin-bottom: 1.25rem;
     }
+    /* Hero Carousel Styling */
+    .hero-carousel-frame {
+      background: #FFFFFF;
+      padding: 8px;
+      border-radius: 20px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      overflow: hidden;
+    }
+    .hero-carousel-img {
+      width: 100%;
+      height: 380px;
+      object-fit: cover;
+      border-radius: 14px;
+    }
+    .carousel-caption-custom {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      background: rgba(16, 56, 46, 0.88);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(198, 161, 91, 0.3);
+      padding: 10px 14px;
+      border-radius: 10px;
+      text-align: left;
+    }
+    /* Update / Spotlight Cards */
+    .update-card {
+      background: var(--pure-white);
+      border: 1px solid var(--muted-sage);
+      border-radius: 16px;
+      overflow: hidden;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 16px rgba(16, 56, 46, 0.04);
+      transition: all 0.25s ease;
+    }
+    .update-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(16, 56, 46, 0.08);
+      border-color: var(--soft-gold);
+    }
+    .update-img-wrapper {
+      height: 220px;
+      position: relative;
+      overflow: hidden;
+      background: #E8ECE9;
+    }
+    .update-img-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      transition: transform 0.4s ease;
+    }
+    .update-card:hover .update-img-wrapper img {
+      transform: scale(1.04);
+    }
+    .update-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(16, 56, 46, 0.92);
+      color: var(--soft-gold);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 50px;
+      border: 1px solid rgba(198, 161, 91, 0.4);
+    }
+    .footer-social-link {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      color: #FFFFFF;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .footer-social-link:hover {
+      background: var(--soft-gold);
+      color: #10382E;
+      transform: translateY(-2px);
+    }
   </style>
 </head>
 <body>
@@ -122,21 +183,31 @@
         <span class="fw-bold fs-5 text-white" style="letter-spacing: -0.3px;">RetireClear</span>
       </a>
 
-      <!-- Mobile Hamburger Button (ONLY visible on mobile < 768px) -->
+      <!-- Mobile Hamburger Button -->
       <button class="navbar-toggler border-0 text-white p-1 d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#landingNavbar" aria-controls="landingNavbar" aria-expanded="false" aria-label="Toggle navigation">
         <i class="bi bi-list fs-2 text-white"></i>
       </button>
 
-      <!-- Nav Links: Inside Drawer on Mobile, Inline on Desktop -->
+      <!-- Nav Links -->
       <div class="collapse navbar-collapse justify-content-end" id="landingNavbar">
         <ul class="navbar-nav align-items-md-center gap-3 pt-3 pt-md-0">
           <li class="nav-item">
-            <a href="#verify" class="nav-link text-white-50 text-white-hover px-2" style="font-size: 0.84rem; font-weight: 500;">
+            <a href="{{ url_for('index') }}" class="nav-link text-white active fw-semibold px-2" style="font-size: 0.88rem;">
+              Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('about') }}" class="nav-link text-white-50 text-white-hover px-2" style="font-size: 0.88rem; font-weight: 500;">
+              About
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('verify_page') }}" class="nav-link text-white-50 text-white-hover px-2" style="font-size: 0.88rem; font-weight: 500;">
               Verify Certificate
             </a>
           </li>
           <li class="nav-item">
-            <a href="#calculator" class="nav-link text-white-50 text-white-hover px-2" style="font-size: 0.84rem; font-weight: 500;">
+            <a href="{{ url_for('calculator_page') }}" class="nav-link text-white-50 text-white-hover px-2" style="font-size: 0.88rem; font-weight: 500;">
               Due Date Calculator
             </a>
           </li>
@@ -177,46 +248,110 @@
     {% endif %}
   {% endwith %}
 
-  <!-- HERO SECTION WITH NIGERIAN PHOTO -->
+  <!-- HERO SECTION WITH TWO-IMAGE SLIDE ANIMATION -->
   <header class="hero-container">
     <div class="container">
       <div class="row align-items-center g-4">
         
         <!-- Left: Text & Actions -->
-        <div class="col-lg-7 text-center text-lg-start">
+        <div class="col-lg-6 text-center text-lg-start">
           <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(198, 161, 91, 0.15); border: 1px solid rgba(198, 161, 91, 0.3); color: var(--soft-gold); font-size: 0.8rem; font-weight: 600;">
-            <i class="bi bi-patch-check-fill"></i> PUBLIC SERVICE CLEARANCE SYSTEM
+            <i class="bi bi-patch-check-fill"></i> FEDERAL REPUBLIC OF PUBLIC SERVICE
           </div>
 
           <h1 class="display-6 fw-bold text-white mb-3" style="line-height: 1.25;">
-            Automated Civil Service Retirement Clearance
+            Automated Civil Service Retirement Clearance & Verification
           </h1>
 
-          <p class="lead text-white-50 mb-4" style="font-size: 1.05rem; max-width: 580px;">
-            A modern, paperless portal for service record verification, statutory eligibility assessment, and official clearance certificate generation.
+          <p class="lead text-white-50 mb-4" style="font-size: 1.05rem; max-width: 560px;">
+            A unified, paperless portal for teachers, doctors, police officers, accountants, bankers, and civil servants — ensuring dignified, transparent retirement with zero bureaucratic delay.
           </p>
 
-          <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start mb-2">
+          <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start mb-3">
             {% if current_user.is_authenticated %}
-              <a href="{{ dashboard_url or url_for('auth.login') }}" class="btn modern-btn px-4 py-2" style="background: var(--soft-gold); color: #10382E;">
-                My Workspace
+              <a href="{{ dashboard_url or url_for('auth.login') }}" class="modern-btn" style="background: var(--soft-gold); color: #10382E;">
+                <i class="bi bi-speedometer2 me-1"></i> My Workspace
               </a>
             {% else %}
-              <a href="{{ url_for('auth.login') }}" class="btn modern-btn px-4 py-2" style="background: var(--soft-gold); color: #10382E;">
-                Officer Sign In
+              <a href="{{ url_for('auth.login') }}" class="modern-btn" style="background: var(--soft-gold); color: #10382E;">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Officer Sign In
               </a>
               <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light px-4 py-2 rounded-3 fw-semibold">
-                Register Account
+                Register as Retiree
               </a>
             {% endif %}
           </div>
+
+          <div class="d-flex flex-wrap align-items-center gap-3 justify-content-center justify-content-lg-start pt-2">
+            <a href="{{ url_for('verify_page') }}" class="small text-white-50 text-white-hover text-decoration-none">
+              <i class="bi bi-shield-check text-warning me-1"></i> Verify Certificate
+            </a>
+            <span class="text-white-50">•</span>
+            <a href="{{ url_for('calculator_page') }}" class="small text-white-50 text-white-hover text-decoration-none">
+              <i class="bi bi-calculator text-warning me-1"></i> Calculate Due Date
+            </a>
+            <span class="text-white-50">•</span>
+            <a href="{{ url_for('about') }}" class="small text-white-50 text-white-hover text-decoration-none">
+              <i class="bi bi-info-circle text-warning me-1"></i> Learn More
+            </a>
+          </div>
         </div>
 
-        <!-- Right: Dignified Nigerian Senior Civil Servant Photo -->
-        <div class="col-lg-5 text-center">
-          <div class="mx-auto" style="max-width: 440px;">
-            <div class="p-2 bg-white rounded-4 shadow-lg border border-2 border-white">
-              <img src="{{ url_for('static', filename='images/hero-retiree-nigeria.jpg') }}" alt="Nigerian Senior Civil Servant Retirement Clearance" class="img-fluid rounded-3 shadow-sm" style="width: 100%; height: auto; object-fit: cover; aspect-ratio: 4/3;">
+        <!-- Right: 2-Image Slide Animation Carousel -->
+        <div class="col-lg-6">
+          <div class="hero-carousel-frame">
+            <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4500">
+              
+              <!-- Carousel Indicators -->
+              <div class="carousel-indicators mb-2">
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Diverse Public Servants"></button>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Celebrating Retirees"></button>
+              </div>
+
+              <div class="carousel-inner">
+                <!-- Slide 1: Diverse Nigerian Civil Servants (Teacher, Police, Accountant, Soldier, Banker, Doctor) -->
+                <div class="carousel-item active position-relative">
+                  <img src="{{ url_for('static', filename='images/hero-diverse-civil-servants.jpg') }}" alt="Nigerian Public Servants - Teachers, Police, Doctors, Accountants, Soldiers" class="hero-carousel-img">
+                  <div class="carousel-caption-custom">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="badge px-2 py-1 rounded-pill" style="background: var(--soft-gold); color: #10382E; font-size: 0.72rem; font-weight: 700;">
+                        PUBLIC SERVICE COHORT
+                      </span>
+                      <small class="text-white-50" style="font-size: 0.75rem;">Federal & State Workforce</small>
+                    </div>
+                    <div class="text-white fw-semibold small mt-1">
+                      Serving Teachers, Healthcare Workers, Police, Accountants & Civil Administrators
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Slide 2: Joyful Senior Retirees Celebrating Clearance -->
+                <div class="carousel-item position-relative">
+                  <img src="{{ url_for('static', filename='images/hero-retirees-celebrating.jpg') }}" alt="Nigerian Senior Civil Servants Celebrating Retirement Clearance" class="hero-carousel-img">
+                  <div class="carousel-caption-custom">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="badge px-2 py-1 rounded-pill" style="background: #28a745; color: #FFFFFF; font-size: 0.72rem; font-weight: 700;">
+                        OFFICIALLY CLEARED
+                      </span>
+                      <small class="text-white-50" style="font-size: 0.75rem;">Digital Certificates Issued</small>
+                    </div>
+                    <div class="text-white fw-semibold small mt-1">
+                      Honorable, Paperless Transition After 35 Years of Meritorious Service
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Carousel Controls -->
+              <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon p-2 bg-dark rounded-circle" aria-hidden="true" style="background-size: 50%;"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon p-2 bg-dark rounded-circle" aria-hidden="true" style="background-size: 50%;"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+
             </div>
           </div>
         </div>
@@ -225,41 +360,51 @@
     </div>
   </header>
 
-  <!-- FLOATING CERTIFICATE VERIFICATION SEARCH -->
-  <div class="container" id="verify">
-    <div class="search-card">
-      <div class="d-flex align-items-center gap-2 mb-2">
-        <i class="bi bi-shield-check text-success fs-5"></i>
-        <h6 class="fw-bold text-dark-evergreen mb-0">Public Certificate Verification</h6>
-      </div>
-      <p class="small text-muted mb-3">
-        Verify the authenticity of any official retirement clearance certificate.
-      </p>
-
-      <form action="{{ url_for('certificates.lookup') }}" method="GET">
-        <div class="input-group">
-          <input type="text" name="q" class="form-control modern-input" placeholder="Certificate Number (e.g. CERT-2026-00001)" required>
-          <button type="submit" class="btn modern-btn ms-2">
-            Verify
-          </button>
+  <!-- QUICK ACCESS PORTAL CALLOUT CARDS -->
+  <section class="container" style="margin-top: -2.5rem; position: relative; z-index: 10;">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="p-4 bg-white rounded-4 shadow-sm border d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-3 p-3 text-success" style="background: rgba(23, 76, 60, 0.08); font-size: 1.5rem;">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold text-dark-evergreen mb-1">Verify Clearance Certificate</h6>
+              <div class="small text-muted">Check authenticity and tamper-evident QR code.</div>
+            </div>
+          </div>
+          <a href="{{ url_for('verify_page') }}" class="btn btn-sm btn-outline-success fw-semibold px-3 py-2 rounded-3 text-nowrap">
+            Open Portal <i class="bi bi-arrow-right"></i>
+          </a>
         </div>
-      </form>
+      </div>
 
-      <div class="text-center mt-3">
-        <span class="small text-muted">Test sample:</span>
-        <a href="{{ url_for('certificates.lookup', q='FGN-RET-CERT-2026-00001') }}" class="small fw-semibold text-success text-decoration-none ms-1">
-          FGN-RET-CERT-2026-00001 <i class="bi bi-arrow-right"></i>
-        </a>
+      <div class="col-md-6">
+        <div class="p-4 bg-white rounded-4 shadow-sm border d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-3 p-3 text-warning" style="background: rgba(198, 161, 91, 0.12); font-size: 1.5rem;">
+              <i class="bi bi-calculator"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold text-dark-evergreen mb-1">Due Date Calculator</h6>
+              <div class="small text-muted">Calculate statutory 60 age or 35 years milestone.</div>
+            </div>
+          </div>
+          <a href="{{ url_for('calculator_page') }}" class="btn btn-sm btn-outline-dark fw-semibold px-3 py-2 rounded-3 text-nowrap">
+            Calculate Now <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- 3-STEP WORKFLOW SECTION -->
-  <section class="py-5 mt-4">
-    <div class="container" style="max-width: 960px;">
+  <section class="py-5 mt-3">
+    <div class="container" style="max-width: 980px;">
       <div class="text-center mb-4">
         <h4 class="fw-bold text-dark-evergreen">How It Works</h4>
-        <p class="text-muted small">Three clear steps to retirement clearance.</p>
+        <p class="text-muted small">Three streamlined steps from documentation to digital certification.</p>
       </div>
 
       <div class="row g-3">
@@ -302,8 +447,114 @@
     </div>
   </section>
 
-  <!-- DIGNIFIED VERIFICATION FEATURE SECTION (WITH NIGERIAN COLLABORATIVE PHOTO) -->
-  <section class="py-5" style="background-color: var(--pure-white); border-top: 1px solid var(--muted-sage); border-bottom: 1px solid var(--muted-sage);">
+  <!-- RECENT UPDATES & VERIFIED BENEFICIARIES SPOTLIGHT (3 IMAGES) -->
+  <section class="py-5" style="background-color: #F8FAF9; border-top: 1px solid var(--muted-sage); border-bottom: 1px solid var(--muted-sage);">
+    <div class="container" style="max-width: 1040px;">
+      <div class="text-center mb-5">
+        <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2" style="background: rgba(23, 76, 60, 0.08); color: var(--primary-forest); font-size: 0.8rem; font-weight: 700;">
+          <i class="bi bi-stars text-warning"></i> RECENT CLEARANCE UPDATES
+        </div>
+        <h3 class="fw-bold text-dark-evergreen">Verified Beneficiaries & Clearance Spotlights</h3>
+        <p class="text-muted small mx-auto" style="max-width: 620px;">
+          Meet real public servants who recently completed their statutory retirement clearance through RetireClear with zero physical queues.
+        </p>
+      </div>
+
+      <div class="row g-4">
+        
+        <!-- Update 1: Mrs. Folashade Adeleke (Retired Principal) -->
+        <div class="col-md-4">
+          <div class="update-card">
+            <div class="update-img-wrapper">
+              <img src="{{ url_for('static', filename='images/retiree-update-folashade.jpg') }}" alt="Mrs. Folashade Adeleke - Retired Principal">
+              <div class="update-badge">
+                <i class="bi bi-patch-check-fill text-warning me-1"></i> CLEARED 2026
+              </div>
+            </div>
+            <div class="p-3 d-flex flex-column flex-grow-1">
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <span class="badge text-bg-light text-success border small fw-semibold">Education Cadre</span>
+                <small class="text-muted" style="font-size: 0.75rem;">GL 16 • 35 Yrs Service</small>
+              </div>
+              <h6 class="fw-bold text-dark-evergreen mb-1">Mrs. Folashade Adeleke</h6>
+              <div class="text-muted small mb-2">Retired Secondary School Principal, FME</div>
+              <p class="text-muted small fst-italic mb-3 flex-grow-1" style="font-size: 0.82rem;">
+                "RetireClear eliminated all travel to Abuja. My initial appointment letter and gazetted records were authenticated in 48 hours."
+              </p>
+              <div class="pt-2 border-top d-flex justify-content-between align-items-center">
+                <span class="text-success small fw-semibold" style="font-size: 0.78rem;">
+                  <i class="bi bi-check-circle-fill"></i> Certificate Generated
+                </span>
+                <span class="badge text-bg-success-subtle text-success small" style="font-size: 0.7rem;">PenCom Ready</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Update 2: Mr. Adebayo Sunday Olumide (Retired Director) -->
+        <div class="col-md-4">
+          <div class="update-card">
+            <div class="update-img-wrapper">
+              <img src="{{ url_for('static', filename='images/retiree-update-adebayo.jpg') }}" alt="Mr. Adebayo Sunday Olumide - Retired Civil Servant">
+              <div class="update-badge">
+                <i class="bi bi-patch-check-fill text-warning me-1"></i> CLEARED 2026
+              </div>
+            </div>
+            <div class="p-3 d-flex flex-column flex-grow-1">
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <span class="badge text-bg-light text-success border small fw-semibold">Administration</span>
+                <small class="text-muted" style="font-size: 0.75rem;">GL 14 • Age 60</small>
+              </div>
+              <h6 class="fw-bold text-dark-evergreen mb-1">Mr. Adebayo Sunday Olumide</h6>
+              <div class="text-muted small mb-2">Senior Education Officer, Fed. Secretariat</div>
+              <p class="text-muted small fst-italic mb-3 flex-grow-1" style="font-size: 0.82rem;">
+                "The automated statutory age evaluation and QR-coded certificate restored dignity and total transparency to our clearance process."
+              </p>
+              <div class="pt-2 border-top d-flex justify-content-between align-items-center">
+                <span class="text-success small fw-semibold" style="font-size: 0.78rem;">
+                  <i class="bi bi-check-circle-fill"></i> Certificate Generated
+                </span>
+                <span class="badge text-bg-success-subtle text-success small" style="font-size: 0.7rem;">PenCom Ready</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Update 3: Alhaji Ibrahim Danladi (Retired Health Officer) -->
+        <div class="col-md-4">
+          <div class="update-card">
+            <div class="update-img-wrapper">
+              <img src="{{ url_for('static', filename='images/retiree-update-ibrahim.jpg') }}" alt="Alhaji Ibrahim Danladi - Public Health Officer">
+              <div class="update-badge">
+                <i class="bi bi-patch-check-fill text-warning me-1"></i> CLEARED 2026
+              </div>
+            </div>
+            <div class="p-3 d-flex flex-column flex-grow-1">
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <span class="badge text-bg-light text-success border small fw-semibold">Health Services</span>
+                <small class="text-muted" style="font-size: 0.75rem;">GL 15 • 35 Yrs Service</small>
+              </div>
+              <h6 class="fw-bold text-dark-evergreen mb-1">Alhaji Ibrahim Danladi</h6>
+              <div class="text-muted small mb-2">Public Health Officer, Health Ministry</div>
+              <p class="text-muted small fst-italic mb-3 flex-grow-1" style="font-size: 0.82rem;">
+                "I filed from my phone in Kaduna. By the time I received my digital retirement certificate, my pension PFA had already been notified."
+              </p>
+              <div class="pt-2 border-top d-flex justify-content-between align-items-center">
+                <span class="text-success small fw-semibold" style="font-size: 0.78rem;">
+                  <i class="bi bi-check-circle-fill"></i> Certificate Generated
+                </span>
+                <span class="badge text-bg-success-subtle text-success small" style="font-size: 0.7rem;">PenCom Ready</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- PUBLIC VERIFICATION FEATURE SECTION -->
+  <section class="py-5" style="background-color: var(--pure-white);">
     <div class="container" style="max-width: 1040px;">
       <div class="row align-items-center g-4">
         <div class="col-lg-6">
@@ -313,13 +564,13 @@
         </div>
         <div class="col-lg-6">
           <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(23, 76, 60, 0.08); color: var(--primary-forest); font-size: 0.8rem; font-weight: 600;">
-            <i class="bi bi-shield-check"></i> STREAMLINED VERIFICATION
+            <i class="bi bi-shield-check"></i> INTEGRITY & TRANSPARENCY
           </div>
           <h3 class="fw-bold text-dark-evergreen mb-3" style="line-height: 1.3;">
-            Dignified, Transparent Clearance for Retiring Officers
+            Dignified, Seamless Clearance for All Retiring Officers
           </h3>
           <p class="text-muted small mb-4">
-            Designed to eliminate bureaucratic delays, manual queues, and documentation bottlenecks across all government ministries, departments, and agencies.
+            Designed to eliminate ghost workers, prevent unapproved service extensions, and eradicate documentation bottlenecks across all government ministries, departments, and parastatals.
           </p>
 
           <div class="d-flex flex-column gap-3">
@@ -329,7 +580,7 @@
               </div>
               <div>
                 <div class="fw-bold small text-dark-evergreen">Verified Service Ledgers</div>
-                <div class="text-muted" style="font-size: 0.82rem;">Cross-reconciliation of initial appointment letters, ministerial gazettes, and service history.</div>
+                <div class="text-muted" style="font-size: 0.82rem;">Cross-reconciliation of appointment letters, official gazettes, and promotion ledgers.</div>
               </div>
             </div>
 
@@ -339,7 +590,7 @@
               </div>
               <div>
                 <div class="fw-bold small text-dark-evergreen">Automated Statutory Evaluation</div>
-                <div class="text-muted" style="font-size: 0.82rem;">Immediate assessment of retirement qualification at 60 years of age or 35 years of pensionable service.</div>
+                <div class="text-muted" style="font-size: 0.82rem;">Immediate calculation of retirement qualification at 60 years of age or 35 years of pensionable service.</div>
               </div>
             </div>
 
@@ -358,86 +609,61 @@
     </div>
   </section>
 
-  <!-- RETIREMENT DUE DATE CALCULATOR -->
-  <section class="py-5" style="background-color: #F1F4F2;" id="calculator">
-    <div class="container" style="max-width: 660px;">
-      <div class="card border-0 shadow-sm p-4 rounded-4" style="background: var(--pure-white);">
-        <div class="text-center mb-3">
-          <h5 class="fw-bold text-dark-evergreen mb-1">Retirement Due Date Calculator</h5>
-          <p class="text-muted small mb-0">Statutory Milestone: 60 Years of Age or 35 Years of Service</p>
+  <!-- FOOTER -->
+  <footer class="py-5" style="background-color: var(--dark-evergreen); color: #c4d4cc;">
+    <div class="container" style="max-width: 1040px;">
+      <div class="row g-4 align-items-center mb-4">
+        
+        <!-- Left: Brand & Information -->
+        <div class="col-md-6 text-center text-md-start">
+          <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mb-2">
+            <img src="{{ url_for('static', filename='images/favicon.svg') }}" alt="Seal" width="28" height="28">
+            <span class="fw-bold text-white fs-5">RetireClear</span>
+          </div>
+          <p class="small text-white-50 mb-0" style="max-width: 420px;">
+            AI-Integrated Automated Retirement Clearance and Verification System for Civil Servants.
+          </p>
         </div>
 
-        <form id="calcForm" onsubmit="event.preventDefault(); runCalc();">
-          <div class="row g-2 mb-3">
-            <div class="col-6">
-              <label class="form-label small fw-semibold text-dark-evergreen">Date of Birth</label>
-              <input type="date" id="dobInput" class="form-control modern-input" required value="1966-04-12">
-            </div>
-            <div class="col-6">
-              <label class="form-label small fw-semibold text-dark-evergreen">Appointment Date</label>
-              <input type="date" id="doaInput" class="form-control modern-input" required value="1991-08-01">
-            </div>
+        <!-- Right: Social Media Icons (3+) -->
+        <div class="col-md-6 text-center text-md-end">
+          <div class="d-inline-flex gap-2 mb-2">
+            <a href="https://twitter.com" target="_blank" rel="noopener" class="footer-social-link" title="Twitter / X" aria-label="Twitter X">
+              <i class="bi bi-twitter-x"></i>
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener" class="footer-social-link" title="LinkedIn" aria-label="LinkedIn">
+              <i class="bi bi-linkedin"></i>
+            </a>
+            <a href="https://facebook.com" target="_blank" rel="noopener" class="footer-social-link" title="Facebook" aria-label="Facebook">
+              <i class="bi bi-facebook"></i>
+            </a>
+            <a href="https://youtube.com" target="_blank" rel="noopener" class="footer-social-link" title="YouTube" aria-label="YouTube">
+              <i class="bi bi-youtube"></i>
+            </a>
           </div>
-          <button type="submit" class="btn modern-btn w-100">
-            Calculate Statutory Retirement Date
-          </button>
-        </form>
-
-        <div id="resultBox" class="mt-3 p-3 rounded-3 bg-light border text-center" style="display: block;">
-          <div class="small text-muted">Statutory Retirement Due Date:</div>
-          <div class="fs-4 fw-bold text-dark-evergreen my-1" id="dueDateText">01/08/2026</div>
-          <div class="small text-success fw-semibold" id="dueReasonText">
-            35 Years of Service milestone reached.
+          <div class="small text-white-50">
+            Federal Republic of Nigeria — Civil Service Portal
           </div>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- CLEAN MINIMAL FOOTER -->
-  <footer class="py-4 text-center text-muted small" style="background-color: var(--dark-evergreen); color: #c4d4cc !important;">
-    <div class="container">
-      <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
-        <img src="{{ url_for('static', filename='images/favicon.svg') }}" alt="Seal" width="22" height="22">
-        <span class="fw-bold text-white">RetireClear</span>
       </div>
-      <div class="mb-2" style="font-size: 0.78rem;">
-        Public Service Retirement Administration & Clearance Portal
-      </div>
-      <div class="text-white-50" style="font-size: 0.72rem;">
-        &copy; 2026 RetireClear. All Rights Reserved.
+
+      <hr style="border-color: rgba(255, 255, 255, 0.1);">
+
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 pt-2">
+        <div class="text-white-50 small" style="font-size: 0.8rem;">
+          &copy; 2026 RetireClear — Federal Republic of Public Service. All Rights Reserved.
+        </div>
+        <div class="d-flex gap-3 small">
+          <a href="{{ url_for('index') }}" class="text-white-50 text-white-hover text-decoration-none">Home</a>
+          <a href="{{ url_for('about') }}" class="text-white-50 text-white-hover text-decoration-none">About</a>
+          <a href="{{ url_for('verify_page') }}" class="text-white-50 text-white-hover text-decoration-none">Verify Certificate</a>
+          <a href="{{ url_for('calculator_page') }}" class="text-white-50 text-white-hover text-decoration-none">Calculator</a>
+        </div>
       </div>
     </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    function runCalc() {
-      const dobVal = document.getElementById('dobInput').value;
-      const doaVal = document.getElementById('doaInput').value;
-      if (!dobVal || !doaVal) return;
-      
-      const dob = new Date(dobVal);
-      const doa = new Date(doaVal);
-      
-      const age60 = new Date(dob);
-      age60.setFullYear(age60.getFullYear() + 60);
-      
-      const serv35 = new Date(doa);
-      serv35.setFullYear(serv35.getFullYear() + 35);
-      
-      function fmt(d) {
-        return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-      }
-      
-      if (age60 <= serv35) {
-        document.getElementById('dueDateText').textContent = fmt(age60);
-        document.getElementById('dueReasonText').textContent = 'Age 60 statutory milestone reached first.';
-      } else {
-        document.getElementById('dueDateText').textContent = fmt(serv35);
-        document.getElementById('dueReasonText').textContent = '35 Years of Public Service milestone reached first.';
-      }
-    }
-  </script>
 </body>
 </html>

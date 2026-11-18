@@ -53,6 +53,33 @@ def create_app(config_name='default'):
             dashboard_url = get_role_dashboard_url(current_user.role.name)
         return render_template('index.html', dashboard_url=dashboard_url)
 
+    # Dedicated About Page
+    @app.route('/about')
+    def about():
+        from app.auth.decorators import get_role_dashboard_url
+        dashboard_url = None
+        if current_user.is_authenticated and current_user.role:
+            dashboard_url = get_role_dashboard_url(current_user.role.name)
+        return render_template('about.html', dashboard_url=dashboard_url)
+
+    # Dedicated Retirement Due Date & Pension Milestone Calculator Page
+    @app.route('/calculator')
+    def calculator_page():
+        from app.auth.decorators import get_role_dashboard_url
+        dashboard_url = None
+        if current_user.is_authenticated and current_user.role:
+            dashboard_url = get_role_dashboard_url(current_user.role.name)
+        return render_template('calculator.html', dashboard_url=dashboard_url)
+
+    # Dedicated Public Certificate Verification Portal Page
+    @app.route('/verify')
+    def verify_page():
+        from app.auth.decorators import get_role_dashboard_url
+        dashboard_url = None
+        if current_user.is_authenticated and current_user.role:
+            dashboard_url = get_role_dashboard_url(current_user.role.name)
+        return render_template('verify.html', dashboard_url=dashboard_url)
+
     # Health check endpoint for Railway & production deployment
     @app.route('/health')
     def health_check():
