@@ -8,23 +8,29 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     """Base Configuration."""
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'nigerian-civil-service-secure-key-2026-fgn-ret')
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'nigerian-civil-service-secure-key-2026-fgn-ret').strip()
     
     # MySQL Database Configuration
-    # Supports DATABASE_URL (e.g. Railway), MYSQL_URL, or discrete credentials (with or without underscores)
-    MYSQL_USER = os.environ.get('MYSQL_USER') or os.environ.get('MYSQLUSER', 'root')
-    MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD') or os.environ.get('MYSQLPASSWORD', '')
-    MYSQL_HOST = os.environ.get('MYSQL_HOST') or os.environ.get('MYSQLHOST', 'localhost')
-    MYSQL_PORT = os.environ.get('MYSQL_PORT') or os.environ.get('MYSQLPORT', '3306')
-    MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE') or os.environ.get('MYSQLDATABASE', 'retirement_clearance_db')
+    # Supports DATABASE_URL (e.g. Railway/Neon/Vercel), MYSQL_URL, or discrete credentials (with or without underscores)
+    MYSQL_USER = (os.environ.get('MYSQL_USER') or os.environ.get('MYSQLUSER', 'root')).strip()
+    MYSQL_PASSWORD = (os.environ.get('MYSQL_PASSWORD') or os.environ.get('MYSQLPASSWORD', '')).strip()
+    MYSQL_HOST = (os.environ.get('MYSQL_HOST') or os.environ.get('MYSQLHOST', 'localhost')).strip()
+    MYSQL_PORT = (os.environ.get('MYSQL_PORT') or os.environ.get('MYSQLPORT', '3306')).strip()
+    MYSQL_DATABASE = (os.environ.get('MYSQL_DATABASE') or os.environ.get('MYSQLDATABASE', 'retirement_clearance_db')).strip()
     
     DATABASE_URL = os.environ.get('DATABASE_URL') or os.environ.get('MYSQL_URL')
     if DATABASE_URL:
+        DATABASE_URL = DATABASE_URL.strip()
         # Normalize postgres/mysql URLs if supplied by cloud providers
         if DATABASE_URL.startswith('mysql://'):
             DATABASE_URL = DATABASE_URL.replace('mysql://', 'mysql+pymysql://', 1)
         elif DATABASE_URL.startswith('postgres://'):
             DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+        
+        # Sanitize channel_binding parameter if present (can fail on serverless libpq builds)
+        if 'channel_binding=' in DATABASE_URL:
+            DATABASE_URL = DATABASE_URL.replace('&channel_binding=require', '').replace('?channel_binding=require', '')
+            
         SQLALCHEMY_DATABASE_URI = DATABASE_URL
     else:
         # Standard local / XAMPP or discrete MySQL connection via PyMySQL
