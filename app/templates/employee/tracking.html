@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}Application Tracking — {{ application.application_reference }}{% endblock %}
+{% block page_title %}Clearance Verification Progress{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Status & Summary Header -->
+  <div class="col-12">
+    <div class="card card-custom p-4">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+          <span class="badge bg-light text-dark border mb-2">Track Reference: {{ application.application_reference }}</span>
+          <h4 class="fw-bold mb-1">{{ employee.full_name }} ({{ employee.staff_number }})</h4>
+          <p class="text-muted small mb-0">{{ employee.ministry_or_agency }} • {{ employee.department }}</p>
+        </div>
+        <div class="text-md-end">
+          <div class="small text-muted">Current Verification Stage:</div>
+          <span class="badge badge-status-approved fs-6 px-3 py-2 mt-1">{{ application.current_status }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline Column -->
+  <div class="col-lg-6">
+    <div class="card card-custom p-4 h-100">
+      <h5 class="fw-bold text-dark-evergreen mb-4">Official Action & Audit Trail</h5>
+
+      <div class="position-relative ps-4 border-start border-2 border-success ms-2">
+        {% for h in application.status_history %}
+        <div class="mb-4 position-relative">
+          <!-- Timeline Bullet -->
+          <div class="position-absolute top-0 start-0 translate-middle rounded-circle bg-success border border-white" style="width: 14px; height: 14px; left: -17px;"></div>
+          
+          <div class="fw-bold text-dark-evergreen">{{ h.new_status }}</div>
+          <div class="text-muted small">{{ h.created_at.strftime('%d/%m/%Y at %H:%M WAT') }}</div>
+          <div class="small mt-1 p-2 bg-light rounded border text-muted">
+            {{ h.comments }}
+          </div>
+          {% if h.changed_by %}
+            <div class="small text-muted mt-1" style="font-size: 0.75rem;">
+              <i class="bi bi-person-check"></i> Officer: {{ h.changed_by.full_name }} ({{ h.changed_by.role.display_name if h.changed_by.role else 'Authorized User' }})
+            </div>
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="text-muted small">No workflow transitions recorded yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Verification & Rule Evaluations Column -->
+  <div class="col-lg-6">
+    <div class="card card-custom p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-dark-evergreen mb-0">AI Eligibility Assessment</h5>
+        <span class="badge bg-light text-dark border">Rule-based Model</span>
+      </div>
+
+      {% if ai_ver %}
+        <div class="p-3 mb-3 rounded-3 bg-light border">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small text-muted">Overall Eligibility Recommendation:</span>
+            <span class="badge {% if ai_ver.overall_eligibility_recommendation == 'Eligible' %}badge-status-approved{% else %}badge-status-pending{% endif %}">
+              {{ ai_ver.overall_eligibility_recommendation }}
+            </span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small text-muted">Assessed Civil Service Age:</span>
+            <strong>{{ ai_ver.calculated_age }} Years</strong>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small text-muted">Pensionable Service Duration:</span>
+            <strong>{{ ai_ver.calculated_years_of_service }} Years</strong>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Risk Assessment:</span>
+            <span class="badge bg-success-subtle text-success border">{{ ai_ver.fraud_risk_level }} Risk</span>
+          </div>
+        </div>
+
+        <h6 class="fw-bold text-dark-evergreen mb-2 small text-uppercase">Statutory Rules Evaluated:</h6>
+        <div class="list-group list-group-flush mb-3">
+          {% for r in ai_ver.rule_evaluation_details or [] %}
+          <div class="list-group-item px-0 py-2 border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="small fw-semibold">{{ r.rule_name }}</span>
+              {% if r.passed %}
+                <span class="badge bg-success-subtle text-success border"><i class="bi bi-check"></i> Passed</span>
+              {% else %}
+                <span class="badge bg-warning-subtle text-warning border"><i class="bi bi-x"></i> Attention</span>
+              {% endif %}
+            </div>
+            <div class="small text-muted mt-1" style="font-size: 0.8rem;">{{ r.explanation }}</div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="p-2 bg-light rounded text-muted small" style="font-size: 0.75rem;">
+          <i class="bi bi-info-circle me-1"></i> AI decisions serve strictly as decision support. Official clearance is granted solely by authorized human Pension Officers.
+        </div>
+      {% else %}
+        <div class="text-center py-4 text-muted">
+          <i class="bi bi-cpu fs-3 d-block mb-2"></i>
+          AI Eligibility screening pending document upload and OCR extraction.
+        </div>
+      {% endif %}
+
+      {% if application.certificate %}
+      <div class="mt-4 pt-3 border-top text-center">
+        <a href="{{ url_for('certificates.view', certificate_id=application.certificate.id) }}" class="btn btn-gold w-100 py-2">
+          <i class="bi bi-award me-1"></i> View Issued Retirement Certificate
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block title %}Verify Service Records — {{ application.application_reference }}{% endblock %}
+{% block page_title %}HR Service Record Verification{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <!-- Service Summary Card -->
+    <div class="card card-custom p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <span class="badge bg-light text-dark border mb-1">Application Ref: {{ application.application_reference }}</span>
+          <h4 class="fw-bold text-dark-evergreen mb-0">{{ employee.full_name }}</h4>
+          <small class="text-muted">Staff No: <strong>{{ employee.staff_number }}</strong> • {{ employee.ministry_or_agency }}</small>
+        </div>
+        <span class="badge badge-status-pending fs-6">{{ application.current_status }}</span>
+      </div>
+
+      <div class="p-3 mb-4 rounded-3 bg-light border">
+        <h6 class="fw-bold text-dark-evergreen mb-2 small text-uppercase">Statutory Service Ledger:</h6>
+        <div class="row g-2 small">
+          <div class="col-sm-6">
+            <span class="text-muted">Date of First Appointment:</span> 
+            <strong>{{ employee.appointment_date.strftime('%d/%m/%Y') }}</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Date of Birth:</span> 
+            <strong>{{ employee.date_of_birth.strftime('%d/%m/%Y') }} ({{ employee.age }} yrs old)</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Total Verified Service:</span> 
+            <strong>{{ employee.years_of_service }} Years</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Statutory Exit Date:</span> 
+            <strong class="text-success">{{ employee.statutory_retirement_date.strftime('%d/%m/%Y') }}</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Current Cadre & Rank:</span> 
+            <strong>{{ employee.current_cadre }} ({{ employee.current_grade_level }})</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Retirement Reason:</span> 
+            <strong>{{ application.reason_for_retirement }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attached Documents & OCR Scrutiny -->
+      <h6 class="fw-bold text-dark-evergreen mb-3">Attached Statutory Service Documents</h6>
+      <div class="table-responsive mb-4">
+        <table class="table table-custom align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Document Type</th>
+              <th>OCR Status</th>
+              <th>Name Alignment</th>
+              <th>Staff No Alignment</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for doc in application.documents %}
+            {% set comp = doc.extracted_metadata.get('comparison', {}) if doc.extracted_metadata else {} %}
+            <tr>
+              <td>
+                <div class="fw-semibold">{{ doc.display_type }}</div>
+                <small class="text-muted">{{ doc.original_filename }}</small>
+              </td>
+              <td>
+                {% if doc.ocr_status == 'processed' %}
+                  <span class="badge bg-success-subtle text-success border">Processed</span>
+                {% else %}
+                  <span class="badge bg-warning-subtle text-warning border">{{ doc.ocr_status }}</span>
+                {% endif %}
+              </td>
+              <td><small>{{ comp.get('name_match', 'Pending Run') }}</small></td>
+              <td><small>{{ comp.get('staff_no_match', 'Pending Run') }}</small></td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="4" class="text-center py-3 text-muted">No documents uploaded yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Verification Action Form -->
+      <div class="border-top pt-4">
+        <h5 class="fw-bold text-dark-evergreen mb-3">Authorize HR Service Record Verification</h5>
+        
+        <form method="POST" action="{{ url_for('hr.verify_records', application_id=application.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="mb-3">
+            <label class="form-label">HR Verification & Service Tenure Notes</label>
+            <textarea name="notes" class="form-control" rows="3" placeholder="Enter confirmation remarks regarding service record book, gazettes, and absence records..."></textarea>
+          </div>
+
+          <div class="d-flex flex-column flex-sm-row justify-content-between gap-2">
+            <button type="submit" name="action" value="confirm" class="btn btn-primary px-4 py-2">
+              <i class="bi bi-check-circle me-1"></i> Confirm Records & Forward to Pension Board
+            </button>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="collapse" data-bs-target="#flagCollapse">
+              <i class="bi bi-flag me-1"></i> Flag for Audit Investigation
+            </button>
+          </div>
+
+          <!-- Collapsible Flag Box -->
+          <div class="collapse mt-3" id="flagCollapse">
+            <div class="p-3 bg-light rounded border border-danger">
+              <label class="form-label text-danger fw-bold">Reason for Flagging Application:</label>
+              <textarea name="flag_reason" class="form-control mb-2" rows="2" placeholder="Describe the suspected service record discrepancy, forged letter, or date conflict..."></textarea>
+              <button type="submit" name="action" value="flag" class="btn btn-danger btn-sm">
+                <i class="bi bi-shield-exclamation me-1"></i> Submit Flag to Auditor
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: AI Recommendation Snapshot -->
+  <div class="col-lg-4">
+    <div class="card card-custom p-4">
+      <h6 class="fw-bold text-dark-evergreen mb-3">AI Decision Support Assessment</h6>
+      
+      {% set ai = application.latest_ai_verification %}
+      {% if ai %}
+        <div class="mb-3">
+          <div class="small text-muted">AI Eligibility Recommendation:</div>
+          <span class="badge {% if ai.overall_eligibility_recommendation == 'Eligible' %}badge-status-approved{% else %}badge-status-pending{% endif %} fs-6 px-3 py-1 mt-1">
+            {{ ai.overall_eligibility_recommendation }}
+          </span>
+        </div>
+
+        <div class="mb-3">
+          <div class="small text-muted">Fraud Risk Level:</div>
+          <span class="badge bg-success-subtle text-success border fw-bold">{{ ai.fraud_risk_level }} Risk</span>
+        </div>
+
+        <div class="small text-muted mb-3">
+          {{ ai.fraud_risk_rationale }}
+        </div>
+
+        <a href="{{ url_for('verification.detail', application_id=application.id) }}" class="btn btn-outline-primary btn-sm w-100">
+          <i class="bi bi-search me-1"></i> Full AI Audit Breakdown
+        </a>
+      {% else %}
+        <div class="text-muted small">AI screening pending document intake.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

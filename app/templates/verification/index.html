@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% block title %}AI Verification & Screening Desk{% endblock %}
+{% block page_title %}AI Verification & Decision Support Desk{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <div>
+    <h3 class="fw-bold mb-1">AI-Assisted Verification & Anomaly Screening</h3>
+    <p class="text-muted small mb-0">Automated OCR document scanning, statutory rule eligibility analysis, and multi-layered fraud risk detection.</p>
+  </div>
+</div>
+
+<!-- Metrics Overview -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card-metric">
+      <div class="metric-label">Total Screened</div>
+      <div class="metric-number">{{ total_screened }}</div>
+      <small class="text-muted"><i class="bi bi-cpu"></i> Automated Runs</small>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-metric accent-success">
+      <div class="metric-label">Statutory Eligible</div>
+      <div class="metric-number">{{ eligible_count }}</div>
+      <small class="text-muted"><i class="bi bi-check2-circle"></i> Rule Verified</small>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-metric accent-danger">
+      <div class="metric-label">Elevated Fraud Risk</div>
+      <div class="metric-number">{{ flagged_risk_count }}</div>
+      <small class="text-muted"><i class="bi bi-shield-alert"></i> High / Critical</small>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-metric accent-gold">
+      <div class="metric-label">Human Review Needed</div>
+      <div class="metric-number">{{ manual_review_needed }}</div>
+      <small class="text-muted"><i class="bi bi-person-check"></i> Officer Scrutiny</small>
+    </div>
+  </div>
+</div>
+
+<!-- Filter & Search Toolbar -->
+<div class="card card-custom p-3 mb-4">
+  <form method="GET" action="{{ url_for('verification.index') }}" class="row g-2 align-items-center">
+    <div class="col-12 col-md-5">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" name="search" class="form-control border-start-0" placeholder="Search reference, staff number..." value="{{ search }}">
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <select name="recommendation" class="form-select">
+        <option value="">All Recommendations</option>
+        <option value="Eligible" {% if current_recommendation == 'Eligible' %}selected{% endif %}>Eligible</option>
+        <option value="Not Eligible" {% if current_recommendation == 'Not Eligible' %}selected{% endif %}>Not Eligible</option>
+        <option value="Further Verification Required" {% if current_recommendation == 'Further Verification Required' %}selected{% endif %}>Further Verification</option>
+      </select>
+    </div>
+    <div class="col-6 col-md-2">
+      <select name="risk" class="form-select">
+        <option value="">All Risk Levels</option>
+        <option value="Low" {% if current_risk == 'Low' %}selected{% endif %}>Low Risk</option>
+        <option value="Moderate" {% if current_risk == 'Moderate' %}selected{% endif %}>Moderate Risk</option>
+        <option value="High" {% if current_risk == 'High' %}selected{% endif %}>High Risk</option>
+        <option value="Critical" {% if current_risk == 'Critical' %}selected{% endif %}>Critical Risk</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-2 d-flex gap-2">
+      <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+      <a href="{{ url_for('verification.index') }}" class="btn btn-light btn-sm"><i class="bi bi-arrow-counterclockwise"></i></a>
+    </div>
+  </form>
+</div>
+
+<!-- Application AI Screening Table -->
+<div class="card card-custom p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="fw-bold text-dark-evergreen mb-0">Retirement Dossiers & AI Assessment Ledger</h6>
+    <span class="badge bg-light text-muted border">{{ applications | length }} Applications</span>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-custom align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Application Ref</th>
+          <th>Civil Servant</th>
+          <th>Age / Service</th>
+          <th>AI Eligibility Recommendation</th>
+          <th>Fraud Risk Level</th>
+          <th>OCR Alignments</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for app in applications %}
+        {% set ai = app.latest_ai_verification %}
+        <tr>
+          <td class="fw-bold text-dark-evergreen">{{ app.application_reference }}</td>
+          <td>
+            <div class="fw-semibold">{{ app.employee.full_name }}</div>
+            <small class="text-muted">{{ app.employee.staff_number }} • {{ app.employee.department }}</small>
+          </td>
+          <td>
+            {% if ai %}
+              <div>{{ ai.calculated_age }} yrs age</div>
+              <small class="text-muted">{{ ai.calculated_years_of_service }} yrs tenure</small>
+            {% else %}
+              <div>{{ app.employee.age }} yrs age</div>
+              <small class="text-muted">{{ app.employee.years_of_service }} yrs tenure</small>
+            {% endif %}
+          </td>
+          <td>
+            {% if ai %}
+              {% if ai.overall_eligibility_recommendation == 'Eligible' %}
+                <span class="badge badge-status-approved"><i class="bi bi-check-circle me-1"></i> Eligible</span>
+              {% elif ai.overall_eligibility_recommendation == 'Not Eligible' %}
+                <span class="badge badge-status-rejected"><i class="bi bi-x-circle me-1"></i> Not Eligible</span>
+              {% else %}
+                <span class="badge badge-status-pending"><i class="bi bi-hourglass-split me-1"></i> {{ ai.overall_eligibility_recommendation }}</span>
+              {% endif %}
+            {% else %}
+              <span class="badge badge-status-neutral">Unprocessed</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if ai %}
+              <div>
+                {% if ai.fraud_risk_level == 'Low' %}
+                  <span class="badge bg-success-subtle text-success border">Low Risk</span>
+                {% elif ai.fraud_risk_level == 'Moderate' %}
+                  <span class="badge bg-warning-subtle text-warning border">Moderate</span>
+                {% elif ai.fraud_risk_level in ('High', 'Critical') %}
+                  <span class="badge bg-danger-subtle text-danger border fw-bold">{{ ai.fraud_risk_level }}</span>
+                {% endif %}
+              </div>
+              <small class="d-block text-muted mt-1" style="font-size: 0.75rem;">
+                Fraud: {{ "%.0f"|format(ai.fraud_score) if ai.fraud_score is defined else '0' }}/100 • Conf: {{ "%.0f"|format(ai.confidence_score) if ai.confidence_score is defined else '96' }}%
+              </small>
+            {% else %}
+              <span class="text-muted small">N/A</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if ai %}
+              <small class="d-block text-muted">Name: <strong class="{% if ai.ocr_name_match_status == 'Full Name Match' %}text-success{% else %}text-muted{% endif %}">{{ ai.ocr_name_match_status }}</strong></small>
+              <small class="d-block text-muted">ID: <strong class="{% if ai.ocr_staff_no_match_status == 'Exact Match' %}text-success{% else %}text-muted{% endif %}">{{ ai.ocr_staff_no_match_status }}</strong></small>
+            {% else %}
+              <small class="text-muted">No OCR record</small>
+            {% endif %}
+          </td>
+          <td>
+            <div class="d-flex gap-1">
+              <a href="{{ url_for('verification.detail', application_id=app.id) }}" class="btn btn-sm btn-outline-primary py-1 px-2" title="Inspect Full AI Dossier">
+                <i class="bi bi-search"></i> Dossier
+              </a>
+              <form method="POST" action="{{ url_for('verification.run_verification', application_id=app.id) }}" class="d-inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="next" value="{{ request.full_path }}">
+                <button type="submit" class="btn btn-sm btn-light py-1 px-2" title="Re-run AI Analysis Pipeline">
+                  <i class="bi bi-arrow-repeat text-dark-evergreen"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="text-center py-4 text-muted">No clearance applications found matching your criteria.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

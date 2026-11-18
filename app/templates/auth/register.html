@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account — RetireClear</title>
+  
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+  
+  <style>
+    body {
+      background-color: var(--warm-ivory);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+    .auth-card {
+      max-width: 480px;
+      width: 100%;
+      background: var(--pure-white);
+      border-radius: 16px;
+      padding: 2.25rem 2rem;
+      border: 1px solid var(--muted-sage);
+      box-shadow: 0 10px 32px rgba(16, 56, 46, 0.07);
+    }
+    .auth-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .auth-header img {
+      width: 44px;
+      height: 44px;
+      margin-bottom: 0.6rem;
+    }
+    .modern-input {
+      border: 1.5px solid var(--muted-sage);
+      border-radius: 10px;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+    .modern-input:focus {
+      border-color: var(--primary-forest);
+      box-shadow: 0 0 0 3px rgba(23, 76, 60, 0.12);
+    }
+    .modern-btn {
+      background: var(--primary-forest);
+      color: var(--pure-white);
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 1.25rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 3px 10px rgba(16, 56, 46, 0.15);
+    }
+    .modern-btn:hover {
+      background: var(--dark-evergreen);
+      box-shadow: 0 5px 15px rgba(16, 56, 46, 0.25);
+      color: var(--pure-white);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-card">
+    
+    <!-- Top Link: Back to Home -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <a href="{{ url_for('index') }}" class="text-decoration-none small text-muted">
+        <i class="bi bi-arrow-left me-1"></i> Back to Home
+      </a>
+      <span class="badge bg-light text-muted border" style="font-size: 0.7rem;">Registration</span>
+    </div>
+
+    <!-- Header Brand -->
+    <div class="auth-header">
+      <a href="{{ url_for('index') }}">
+        <img src="{{ url_for('static', filename='images/favicon.svg') }}" alt="Seal">
+      </a>
+      <h4 class="fw-bold text-dark-evergreen mb-1">Create Account</h4>
+      <p class="text-muted small mb-0">Civil service retiree self-registration</p>
+    </div>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show small py-2 mb-3" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('auth.register') }}" novalidate>
+      {{ form.hidden_tag() }}
+
+      <div class="mb-3">
+        <label class="form-label small fw-semibold text-dark-evergreen" for="staff_number">Staff ID</label>
+        {{ form.staff_number(class="form-control modern-input" + (" is-invalid" if form.staff_number.errors else ""), placeholder="Staff ID (e.g. ID-2026-001)", id="staff_number") }}
+        {% for err in form.staff_number.errors %}
+          <div class="invalid-feedback d-block small">{{ err }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="row g-2 mb-3">
+        <div class="col-6">
+          <label class="form-label small fw-semibold text-dark-evergreen" for="first_name">First Name</label>
+          {{ form.first_name(class="form-control modern-input" + (" is-invalid" if form.first_name.errors else ""), placeholder="First Name", id="first_name") }}
+          {% for err in form.first_name.errors %}
+            <div class="invalid-feedback d-block small">{{ err }}</div>
+          {% endfor %}
+        </div>
+        <div class="col-6">
+          <label class="form-label small fw-semibold text-dark-evergreen" for="last_name">Last Name</label>
+          {{ form.last_name(class="form-control modern-input" + (" is-invalid" if form.last_name.errors else ""), placeholder="Last Name", id="last_name") }}
+          {% for err in form.last_name.errors %}
+            <div class="invalid-feedback d-block small">{{ err }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-semibold text-dark-evergreen" for="email">Email Address</label>
+        {{ form.email(class="form-control modern-input" + (" is-invalid" if form.email.errors else ""), placeholder="Email Address", id="email") }}
+        {% for err in form.email.errors %}
+          <div class="invalid-feedback d-block small">{{ err }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-semibold text-dark-evergreen" for="phone_number">Phone Number</label>
+        {{ form.phone_number(class="form-control modern-input" + (" is-invalid" if form.phone_number.errors else ""), placeholder="Phone Number", id="phone_number") }}
+        {% for err in form.phone_number.errors %}
+          <div class="invalid-feedback d-block small">{{ err }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-semibold text-dark-evergreen" for="ministry_or_agency">Department or Ministry</label>
+        {{ form.ministry_or_agency(class="form-control modern-input" + (" is-invalid" if form.ministry_or_agency.errors else ""), placeholder="Department or Ministry", id="ministry_or_agency") }}
+        {% for err in form.ministry_or_agency.errors %}
+          <div class="invalid-feedback d-block small">{{ err }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="row g-2 mb-4">
+        <div class="col-6">
+          <label class="form-label small fw-semibold text-dark-evergreen" for="password">Password</label>
+          {{ form.password(class="form-control modern-input" + (" is-invalid" if form.password.errors else ""), placeholder="Password", id="password") }}
+          {% for err in form.password.errors %}
+            <div class="invalid-feedback d-block small">{{ err }}</div>
+          {% endfor %}
+        </div>
+        <div class="col-6">
+          <label class="form-label small fw-semibold text-dark-evergreen" for="confirm_password">Confirm Password</label>
+          {{ form.confirm_password(class="form-control modern-input" + (" is-invalid" if form.confirm_password.errors else ""), placeholder="Confirm Password", id="confirm_password") }}
+          {% for err in form.confirm_password.errors %}
+            <div class="invalid-feedback d-block small">{{ err }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <button type="submit" class="btn modern-btn w-100 mb-3">
+        Create Account
+      </button>
+
+      <div class="text-center pt-2 border-top">
+        <span class="small text-muted">Already have an account?</span>
+        <a href="{{ url_for('auth.login') }}" class="small fw-semibold text-success ms-1">Sign In</a>
+      </div>
+    </form>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

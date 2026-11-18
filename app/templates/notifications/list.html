@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Notifications & Alerts{% endblock %}
+{% block page_title %}Official Portal Alerts & Notices{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card card-custom p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+          <h4 class="fw-bold text-dark-evergreen mb-1">In-App Notices</h4>
+          <p class="text-muted small mb-0">Workflow status alerts, missing document requests, and approval confirmations.</p>
+        </div>
+        {% if notifications %}
+          <a href="{{ url_for('notifications.mark_all_read') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-check2-all me-1"></i> Mark All as Read
+          </a>
+        {% endif %}
+      </div>
+
+      <div class="list-group list-group-flush">
+        {% for n in notifications %}
+        <div class="list-group-item px-3 py-3 border rounded mb-2 {% if not n.is_read %}bg-light border-success-subtle{% endif %}">
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+            <h6 class="fw-bold mb-0 {% if not n.is_read %}text-dark-evergreen{% else %}text-muted{% endif %}">
+              {% if not n.is_read %}<span class="badge bg-success me-1">New</span>{% endif %}
+              {{ n.title }}
+            </h6>
+            <small class="text-muted text-nowrap">{{ n.created_at.strftime('%d/%m/%Y • %H:%M') }}</small>
+          </div>
+          <p class="small text-muted mb-2">{{ n.message }}</p>
+          <div class="d-flex gap-2">
+            {% if n.link %}
+              <a href="{{ url_for('notifications.mark_read', notification_id=n.id) }}" class="btn btn-sm btn-primary py-0 px-2">
+                View Details <i class="bi bi-arrow-right"></i>
+              </a>
+            {% elif not n.is_read %}
+              <a href="{{ url_for('notifications.mark_read', notification_id=n.id) }}" class="btn btn-sm btn-outline-secondary py-0 px-2">
+                Mark as Read
+              </a>
+            {% endif %}
+          </div>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+          <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
+          You have no notifications or pending administrative alerts.
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

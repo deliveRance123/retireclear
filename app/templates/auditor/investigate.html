@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% block title %}Audit Inquiry — {{ application.application_reference }}{% endblock %}
+{% block page_title %}Audit Inquiry & Findings Log{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Left Column: Inquiry Dossier -->
+  <div class="col-lg-8">
+    <div class="card card-custom p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <span class="badge bg-danger-subtle text-danger border mb-1">Investigation Dossier: {{ application.application_reference }}</span>
+          <h4 class="fw-bold text-dark-evergreen mb-0">{{ employee.full_name }}</h4>
+          <small class="text-muted">Staff No: <strong>{{ employee.staff_number }}</strong> • {{ employee.ministry_or_agency }}</small>
+        </div>
+        <span class="badge badge-status-flagged fs-6">Under Investigation</span>
+      </div>
+
+      <!-- Detected Irregularities & Anomalies -->
+      <h6 class="fw-bold text-danger mb-3"><i class="bi bi-shield-alert me-1"></i> Flagged Anomaly Manifest</h6>
+      
+      {% if ai_ver and ai_ver.inconsistencies_detected %}
+        <div class="list-group mb-4">
+          {% for anom in ai_ver.inconsistencies_detected %}
+          <div class="list-group-item list-group-item-action border-danger-subtle mb-2 rounded bg-light">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="badge bg-danger text-white">{{ anom.type }}</span>
+              <span class="badge bg-danger-subtle text-danger border">{{ anom.severity }} Severity</span>
+            </div>
+            <div class="small fw-semibold text-dark">{{ anom.description }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="p-3 mb-4 rounded bg-light border text-muted small">
+          No automated anomalies detected by algorithm. Application was manually flagged by an authorized administrative officer.
+          {% if application.flag_reason %}
+            <div class="mt-2 text-danger"><strong>Stated Reason:</strong> {{ application.flag_reason }}</div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <!-- Previous Findings on File -->
+      {% if investigations %}
+        <h6 class="fw-bold text-dark-evergreen mb-3">Previous Inquiry Findings on File</h6>
+        <div class="list-group mb-4">
+          {% for inv in investigations %}
+          <div class="list-group-item px-3 py-2 border mb-2 rounded">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="small fw-bold">{{ inv.investigation_type }} ({{ inv.status }})</span>
+              <span class="text-muted small">{{ inv.created_at.strftime('%d/%m/%Y • %H:%M') }}</span>
+            </div>
+            <div class="small text-muted mb-1">{{ inv.findings }}</div>
+            <div class="small fw-semibold text-success">Recommended: {{ inv.recommended_action }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Record Findings Form -->
+      <div class="border-top pt-4">
+        <h5 class="fw-bold text-dark-evergreen mb-3">Record Official Auditor Inquiry Findings</h5>
+
+        <form method="POST" action="{{ url_for('auditor.investigate', application_id=application.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Inquiry Classification</label>
+              <select name="investigation_type" class="form-select">
+                <option value="Duplicate Record Check">Duplicate Record Check</option>
+                <option value="Identity & Document Mismatch">Identity & Document Mismatch</option>
+                <option value="Service Duration Conflict">Service Duration Conflict</option>
+                <option value="Missing Mandatory Letters">Missing Mandatory Letters</option>
+                <option value="Suspected Alteration / Forgery">Suspected Alteration / Forgery</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Recommended Action</label>
+              <select name="recommended_action" class="form-select">
+                <option value="Cleared after Verification">Cleared after Verification (Proceed to Pension)</option>
+                <option value="Request Secondary Supporting Documents">Request Secondary Supporting Documents</option>
+                <option value="Refer to Anti-Graft & Legal Directorate">Refer to Anti-Graft & Legal Directorate</option>
+                <option value="Revoke & Cancel Application">Revoke & Cancel Application</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Official Investigation Findings & Evidence</label>
+            <textarea name="findings" class="form-control" rows="4" placeholder="Detail examination of original service books, civil service commission minutes, or gazette verification..."></textarea>
+          </div>
+
+          <div class="mb-4 form-check p-3 bg-light rounded border">
+            <input type="checkbox" name="clear_flag" value="yes" class="form-check-input" id="clear_flag">
+            <label class="form-check-label small fw-bold text-dark-evergreen" for="clear_flag">
+              Clear Irregularity Flag & Forward Dossier to Pension Clearance Board
+            </label>
+            <div class="form-text small">Check only if findings confirm that the public servant's records are authentic and verified.</div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ url_for('auditor.flagged') }}" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-arrow-left"></i> Return to Queue
+            </a>
+            <button type="submit" class="btn btn-primary px-4 py-2">
+              <i class="bi bi-file-earmark-check me-1"></i> File Inquiry Findings
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Verification Dossier Snapshot -->
+  <div class="col-lg-4">
+    <div class="card card-custom p-4">
+      <h6 class="fw-bold text-dark-evergreen mb-3">Service Verification Ledger</h6>
+      
+      <div class="small">
+        <div class="mb-2"><span class="text-muted">NIN on Record:</span> <strong>{{ employee.nin or 'None' }}</strong></div>
+        <div class="mb-2"><span class="text-muted">BVN on Record:</span> <strong>{{ employee.bvn or 'None' }}</strong></div>
+        <div class="mb-2"><span class="text-muted">First Appointment:</span> <strong>{{ employee.appointment_date.strftime('%d/%m/%Y') }}</strong></div>
+        <div class="mb-2"><span class="text-muted">Date of Birth:</span> <strong>{{ employee.date_of_birth.strftime('%d/%m/%Y') }} ({{ employee.age }} yrs)</strong></div>
+        <div class="mb-2"><span class="text-muted">Years in Service:</span> <strong>{{ employee.years_of_service }} Years</strong></div>
+        <div class="mb-2"><span class="text-muted">Statutory Retirement:</span> <strong>{{ employee.statutory_retirement_date.strftime('%d/%m/%Y') }}</strong></div>
+      </div>
+
+      <hr>
+
+      <a href="{{ url_for('verification.detail', application_id=application.id) }}" class="btn btn-outline-primary btn-sm w-100">
+        <i class="bi bi-eye"></i> View Complete AI Verification
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

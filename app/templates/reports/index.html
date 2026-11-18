@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Reports & Analytics{% endblock %}
+{% block page_title %}Executive Clearance Reports & Analytics{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="card card-custom p-4 h-100">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center p-3 fs-3">
+          <i class="bi bi-file-earmark-check"></i>
+        </div>
+        <div>
+          <h5 class="fw-bold text-dark-evergreen mb-1">Clearance Report</h5>
+          <small class="text-muted">Statutory Decisions</small>
+        </div>
+      </div>
+      <p class="text-muted small mb-4">
+        Detailed register of employee clearances, pension entitlements, AI recommendations, approving officers, and decision dates.
+      </p>
+      <a href="{{ url_for('reports.clearance_report') }}" class="btn btn-primary btn-sm mt-auto">
+        <i class="bi bi-arrow-right-circle me-1"></i> Open Clearance Report
+      </a>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card card-custom p-4 h-100">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center p-3 fs-3">
+          <i class="bi bi-shield-alert"></i>
+        </div>
+        <div>
+          <h5 class="fw-bold text-dark-evergreen mb-1">Fraud & Anomaly Report</h5>
+          <small class="text-muted">Integrity Audit</small>
+        </div>
+      </div>
+      <p class="text-muted small mb-4">
+        Summary of flagged records, duplicate identification numbers, chronological service anomalies, and auditor inquiry outcomes.
+      </p>
+      <a href="{{ url_for('reports.fraud_report') }}" class="btn btn-secondary btn-sm mt-auto">
+        <i class="bi bi-arrow-right-circle me-1"></i> Open Fraud Audit Report
+      </a>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card card-custom p-4 h-100">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="rounded-circle bg-warning-subtle text-warning d-flex align-items-center justify-content-center p-3 fs-3">
+          <i class="bi bi-bar-chart"></i>
+        </div>
+        <div>
+          <h5 class="fw-bold text-dark-evergreen mb-1">Administrative Statistics</h5>
+          <small class="text-muted">Volume by MDA</small>
+        </div>
+      </div>
+      <p class="text-muted small mb-4">
+        Public sector clearance throughput, volume breakdown by federal ministry, monthly exit trends, and workflow lead times.
+      </p>
+      <a href="{{ url_for('reports.admin_report') }}" class="btn btn-outline-primary btn-sm mt-auto">
+        <i class="bi bi-arrow-right-circle me-1"></i> Open Statistics Summary
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

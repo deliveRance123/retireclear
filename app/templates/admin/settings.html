@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}System Settings & Rules{% endblock %}
+{% block page_title %}Retirement Eligibility Rules Configuration{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+    <div class="card card-custom p-4 mb-4">
+      <div class="mb-4 pb-3 border-bottom">
+        <h4 class="fw-bold text-dark-evergreen mb-1">Configurable Statutory Eligibility Rules</h4>
+        <p class="text-muted small mb-0">Customize public service retirement assessment thresholds and boolean evaluation operators.</p>
+      </div>
+
+      <div class="alert alert-info py-3 mb-4 card-custom border-0 shadow-sm">
+        <div class="d-flex align-items-start gap-2">
+          <i class="bi bi-info-circle-fill text-success fs-5"></i>
+          <div class="small">
+            <strong>Public Service Rules (PSR) Framework:</strong><br>
+            By default, retirement in the civil service takes effect upon attaining <strong>60 years of age</strong> OR <strong>35 years of pensionable service</strong>, whichever comes first. This engine allows authorized administrators to configure both the threshold metrics and the combination logic operator.
+          </div>
+        </div>
+      </div>
+
+      <form method="POST" action="{{ url_for('admin.settings') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="row g-4 mb-4">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Statutory Retirement Age (Years)</label>
+            <input type="number" name="statutory_retirement_age" class="form-control" value="{{ statutory_retirement_age }}" min="45" max="75" required>
+            <div class="form-text small">Default standard: 60 years. (Judicial officers or academics may require 65 or 70).</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Statutory Maximum Years of Service</label>
+            <input type="number" name="statutory_years_of_service" class="form-control" value="{{ statutory_years_of_service }}" min="20" max="45" required>
+            <div class="form-text small">Default standard: 35 years of pensionable public service.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Eligibility Logic Operator</label>
+            <select name="eligibility_logic_operator" class="form-select" required>
+              <option value="OR" {% if eligibility_logic_operator == 'OR' %}selected{% endif %}>
+                OR (Age ≥ Threshold OR Service ≥ Threshold — Whichever is earlier)
+              </option>
+              <option value="AND" {% if eligibility_logic_operator == 'AND' %}selected{% endif %}>
+                AND (Must fulfill both Age ≥ Threshold AND Service ≥ Threshold)
+              </option>
+            </select>
+            <div class="form-text small">Standard public service default is <strong>OR</strong>.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Voluntary Retirement Minimum Tenure (Years)</label>
+            <input type="number" name="min_voluntary_service_years" class="form-control" value="{{ min_voluntary_service_years }}" min="5" max="30" required>
+            <div class="form-text small">Minimum pensionable service required to exit voluntarily with full pension entitlement.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Administrative Session Timeout (Minutes)</label>
+            <input type="number" name="session_timeout_minutes" class="form-control" value="{{ session_timeout_minutes }}" min="15" max="240" required>
+            <div class="form-text small">Inactivity window before an officer is securely signed out.</div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+          <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Cancel
+          </a>
+          <button type="submit" class="btn btn-primary px-4 py-2">
+            <i class="bi bi-save me-1"></i> Update Eligibility Engine Rules
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

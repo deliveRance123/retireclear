@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RetireClear — National Retirement Clearance Portal</title>
+  
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+  
+  <style>
+    body {
+      padding-top: 64px; /* Space for fixed header */
+      overflow-x: hidden;
+      background-color: var(--warm-ivory);
+      color: var(--charcoal);
+    }
+    .fixed-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      min-height: 64px;
+      z-index: 1040;
+      background: var(--dark-evergreen);
+      border-bottom: 1px solid rgba(220, 232, 223, 0.12);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+      padding: 0.5rem 0;
+    }
+    .text-white-hover:hover {
+      color: #FFFFFF !important;
+    }
+    @media (max-width: 767.98px) {
+      #landingNavbar {
+        background: var(--dark-evergreen);
+        padding: 1rem 0;
+        border-top: 1px solid rgba(220, 232, 223, 0.1);
+      }
+    }
+    .hero-container {
+      background: linear-gradient(135deg, var(--dark-evergreen) 0%, var(--primary-forest) 100%);
+      color: var(--pure-white);
+      padding: 4.5rem 1rem 5.5rem;
+      position: relative;
+    }
+    .search-card {
+      max-width: 650px;
+      margin: -2.75rem auto 0;
+      background: var(--pure-white);
+      border-radius: 16px;
+      padding: 1.75rem 2rem;
+      border: 1px solid var(--muted-sage);
+      box-shadow: 0 10px 32px rgba(16, 56, 46, 0.08);
+      position: relative;
+      z-index: 10;
+    }
+    .modern-input {
+      border: 1.5px solid var(--muted-sage);
+      border-radius: 10px;
+      padding: 0.65rem 1rem;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+    .modern-input:focus {
+      border-color: var(--primary-forest);
+      box-shadow: 0 0 0 3px rgba(23, 76, 60, 0.12);
+    }
+    .modern-btn {
+      background: var(--primary-forest);
+      color: var(--pure-white);
+      border: none;
+      border-radius: 10px;
+      padding: 0.65rem 1.4rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 3px 8px rgba(16, 56, 46, 0.15);
+    }
+    .modern-btn:hover {
+      background: var(--dark-evergreen);
+      box-shadow: 0 5px 12px rgba(16, 56, 46, 0.25);
+      color: var(--pure-white);
+    }
+    .step-card {
+      background: var(--pure-white);
+      border: 1px solid var(--muted-sage);
+      border-radius: 14px;
+      padding: 2rem 1.5rem;
+      height: 100%;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .step-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(16, 56, 46, 0.06);
+      border-color: var(--soft-gold);
+    }
+    .step-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--muted-sage);
+      color: var(--primary-forest);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FIXED NAVBAR -->
+  <nav class="navbar navbar-expand-md fixed-nav">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 text-white text-decoration-none me-auto me-md-0" href="{{ url_for('index') }}">
+        <img src="{{ url_for('static', filename='images/favicon.svg') }}" alt="Seal" width="34" height="34">
+        <span class="fw-bold fs-5 text-white" style="letter-spacing: -0.3px;">RetireClear</span>
+      </a>
+
+      <!-- Mobile Hamburger Button (ONLY visible on mobile < 768px) -->
+      <button class="navbar-toggler border-0 text-white p-1 d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#landingNavbar" aria-controls="landingNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list fs-2 text-white"></i>
+      </button>
+
+      <!-- Nav Links: Inside Drawer on Mobile, Inline on Desktop -->
+      <div class="collapse navbar-collapse justify-content-end" id="landingNavbar">
+        <ul class="navbar-nav align-items-md-center gap-3 pt-3 pt-md-0">
+          <li class="nav-item">
+            <a href="#verify" class="nav-link text-white-50 text-white-hover px-2" style="font-size: 0.84rem; font-weight: 500;">
+              Verify Certificate
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#calculator" class="nav-link text-white-50 text-white-hover px-2" style="font-size: 0.84rem; font-weight: 500;">
+              Due Date Calculator
+            </a>
+          </li>
+          {% if current_user.is_authenticated %}
+            <li class="nav-item mt-2 mt-md-0">
+              <a href="{{ dashboard_url or url_for('auth.login') }}" class="btn btn-sm btn-gold fw-semibold px-3 py-1 rounded-pill w-100 w-md-auto" style="font-size: 0.82rem;">
+                Dashboard
+              </a>
+            </li>
+          {% else %}
+            <li class="nav-item mt-2 mt-md-0">
+              <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-gold fw-semibold px-3 py-1 rounded-pill w-100 w-md-auto" style="font-size: 0.82rem;">
+                Sign In
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ url_for('auth.register') }}" class="btn btn-sm btn-outline-light px-3 py-1 rounded-pill w-100 w-md-auto" style="font-size: 0.82rem;">
+                Sign Up
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="container mt-3">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show small py-2 mb-2" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- HERO SECTION WITH NIGERIAN PHOTO -->
+  <header class="hero-container">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        
+        <!-- Left: Text & Actions -->
+        <div class="col-lg-7 text-center text-lg-start">
+          <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(198, 161, 91, 0.15); border: 1px solid rgba(198, 161, 91, 0.3); color: var(--soft-gold); font-size: 0.8rem; font-weight: 600;">
+            <i class="bi bi-patch-check-fill"></i> PUBLIC SERVICE CLEARANCE SYSTEM
+          </div>
+
+          <h1 class="display-6 fw-bold text-white mb-3" style="line-height: 1.25;">
+            Automated Civil Service Retirement Clearance
+          </h1>
+
+          <p class="lead text-white-50 mb-4" style="font-size: 1.05rem; max-width: 580px;">
+            A modern, paperless portal for service record verification, statutory eligibility assessment, and official clearance certificate generation.
+          </p>
+
+          <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start mb-2">
+            {% if current_user.is_authenticated %}
+              <a href="{{ dashboard_url or url_for('auth.login') }}" class="btn modern-btn px-4 py-2" style="background: var(--soft-gold); color: #10382E;">
+                My Workspace
+              </a>
+            {% else %}
+              <a href="{{ url_for('auth.login') }}" class="btn modern-btn px-4 py-2" style="background: var(--soft-gold); color: #10382E;">
+                Officer Sign In
+              </a>
+              <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light px-4 py-2 rounded-3 fw-semibold">
+                Register Account
+              </a>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Right: Dignified Nigerian Senior Civil Servant Photo -->
+        <div class="col-lg-5 text-center">
+          <div class="mx-auto" style="max-width: 440px;">
+            <div class="p-2 bg-white rounded-4 shadow-lg border border-2 border-white">
+              <img src="{{ url_for('static', filename='images/hero-retiree-nigeria.jpg') }}" alt="Nigerian Senior Civil Servant Retirement Clearance" class="img-fluid rounded-3 shadow-sm" style="width: 100%; height: auto; object-fit: cover; aspect-ratio: 4/3;">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- FLOATING CERTIFICATE VERIFICATION SEARCH -->
+  <div class="container" id="verify">
+    <div class="search-card">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <i class="bi bi-shield-check text-success fs-5"></i>
+        <h6 class="fw-bold text-dark-evergreen mb-0">Public Certificate Verification</h6>
+      </div>
+      <p class="small text-muted mb-3">
+        Verify the authenticity of any official retirement clearance certificate.
+      </p>
+
+      <form action="{{ url_for('certificates.lookup') }}" method="GET">
+        <div class="input-group">
+          <input type="text" name="q" class="form-control modern-input" placeholder="Certificate Number (e.g. CERT-2026-00001)" required>
+          <button type="submit" class="btn modern-btn ms-2">
+            Verify
+          </button>
+        </div>
+      </form>
+
+      <div class="text-center mt-3">
+        <span class="small text-muted">Test sample:</span>
+        <a href="{{ url_for('certificates.lookup', q='FGN-RET-CERT-2026-00001') }}" class="small fw-semibold text-success text-decoration-none ms-1">
+          FGN-RET-CERT-2026-00001 <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3-STEP WORKFLOW SECTION -->
+  <section class="py-5 mt-4">
+    <div class="container" style="max-width: 960px;">
+      <div class="text-center mb-4">
+        <h4 class="fw-bold text-dark-evergreen">How It Works</h4>
+        <p class="text-muted small">Three clear steps to retirement clearance.</p>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="step-card">
+            <div class="step-icon-box">
+              <i class="bi bi-file-earmark-arrow-up"></i>
+            </div>
+            <h6 class="fw-bold text-dark-evergreen mb-2">1. Submit Records</h6>
+            <p class="text-muted small mb-0">
+              Submit your appointment date, service milestones, and mandatory credentials digitally.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="step-card">
+            <div class="step-icon-box">
+              <i class="bi bi-check2-circle"></i>
+            </div>
+            <h6 class="fw-bold text-dark-evergreen mb-2">2. Verification</h6>
+            <p class="text-muted small mb-0">
+              Automated document validation cross-checks service length and statutory eligibility.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="step-card">
+            <div class="step-icon-box">
+              <i class="bi bi-award"></i>
+            </div>
+            <h6 class="fw-bold text-dark-evergreen mb-2">3. Clearance Certificate</h6>
+            <p class="text-muted small mb-0">
+              Receive a tamper-evident digital certificate with an instantly verifiable QR code.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIGNIFIED VERIFICATION FEATURE SECTION (WITH NIGERIAN COLLABORATIVE PHOTO) -->
+  <section class="py-5" style="background-color: var(--pure-white); border-top: 1px solid var(--muted-sage); border-bottom: 1px solid var(--muted-sage);">
+    <div class="container" style="max-width: 1040px;">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-6">
+          <div class="p-2 bg-white rounded-4 shadow-sm border border-2 border-light">
+            <img src="{{ url_for('static', filename='images/verification-collaborative-nigeria.jpg') }}" alt="Nigerian Public Service Verification Desk" class="img-fluid rounded-3" style="width: 100%; height: auto; object-fit: cover; aspect-ratio: 4/3;">
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(23, 76, 60, 0.08); color: var(--primary-forest); font-size: 0.8rem; font-weight: 600;">
+            <i class="bi bi-shield-check"></i> STREAMLINED VERIFICATION
+          </div>
+          <h3 class="fw-bold text-dark-evergreen mb-3" style="line-height: 1.3;">
+            Dignified, Transparent Clearance for Retiring Officers
+          </h3>
+          <p class="text-muted small mb-4">
+            Designed to eliminate bureaucratic delays, manual queues, and documentation bottlenecks across all government ministries, departments, and agencies.
+          </p>
+
+          <div class="d-flex flex-column gap-3">
+            <div class="d-flex align-items-start gap-3">
+              <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 32px; height: 32px; background: var(--primary-forest); flex-shrink: 0; font-size: 0.85rem;">
+                <i class="bi bi-check2"></i>
+              </div>
+              <div>
+                <div class="fw-bold small text-dark-evergreen">Verified Service Ledgers</div>
+                <div class="text-muted" style="font-size: 0.82rem;">Cross-reconciliation of initial appointment letters, ministerial gazettes, and service history.</div>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-start gap-3">
+              <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 32px; height: 32px; background: var(--primary-forest); flex-shrink: 0; font-size: 0.85rem;">
+                <i class="bi bi-cpu"></i>
+              </div>
+              <div>
+                <div class="fw-bold small text-dark-evergreen">Automated Statutory Evaluation</div>
+                <div class="text-muted" style="font-size: 0.82rem;">Immediate assessment of retirement qualification at 60 years of age or 35 years of pensionable service.</div>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-start gap-3">
+              <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 32px; height: 32px; background: var(--primary-forest); flex-shrink: 0; font-size: 0.85rem;">
+                <i class="bi bi-award"></i>
+              </div>
+              <div>
+                <div class="fw-bold small text-dark-evergreen">Tamper-Evident Certification</div>
+                <div class="text-muted" style="font-size: 0.82rem;">Digitally sealed clearance certificates ready for PenCom RSA coordination and prompt gratuity computation.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RETIREMENT DUE DATE CALCULATOR -->
+  <section class="py-5" style="background-color: #F1F4F2;" id="calculator">
+    <div class="container" style="max-width: 660px;">
+      <div class="card border-0 shadow-sm p-4 rounded-4" style="background: var(--pure-white);">
+        <div class="text-center mb-3">
+          <h5 class="fw-bold text-dark-evergreen mb-1">Retirement Due Date Calculator</h5>
+          <p class="text-muted small mb-0">Statutory Milestone: 60 Years of Age or 35 Years of Service</p>
+        </div>
+
+        <form id="calcForm" onsubmit="event.preventDefault(); runCalc();">
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label small fw-semibold text-dark-evergreen">Date of Birth</label>
+              <input type="date" id="dobInput" class="form-control modern-input" required value="1966-04-12">
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-semibold text-dark-evergreen">Appointment Date</label>
+              <input type="date" id="doaInput" class="form-control modern-input" required value="1991-08-01">
+            </div>
+          </div>
+          <button type="submit" class="btn modern-btn w-100">
+            Calculate Statutory Retirement Date
+          </button>
+        </form>
+
+        <div id="resultBox" class="mt-3 p-3 rounded-3 bg-light border text-center" style="display: block;">
+          <div class="small text-muted">Statutory Retirement Due Date:</div>
+          <div class="fs-4 fw-bold text-dark-evergreen my-1" id="dueDateText">01/08/2026</div>
+          <div class="small text-success fw-semibold" id="dueReasonText">
+            35 Years of Service milestone reached.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLEAN MINIMAL FOOTER -->
+  <footer class="py-4 text-center text-muted small" style="background-color: var(--dark-evergreen); color: #c4d4cc !important;">
+    <div class="container">
+      <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
+        <img src="{{ url_for('static', filename='images/favicon.svg') }}" alt="Seal" width="22" height="22">
+        <span class="fw-bold text-white">RetireClear</span>
+      </div>
+      <div class="mb-2" style="font-size: 0.78rem;">
+        Public Service Retirement Administration & Clearance Portal
+      </div>
+      <div class="text-white-50" style="font-size: 0.72rem;">
+        &copy; 2026 RetireClear. All Rights Reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function runCalc() {
+      const dobVal = document.getElementById('dobInput').value;
+      const doaVal = document.getElementById('doaInput').value;
+      if (!dobVal || !doaVal) return;
+      
+      const dob = new Date(dobVal);
+      const doa = new Date(doaVal);
+      
+      const age60 = new Date(dob);
+      age60.setFullYear(age60.getFullYear() + 60);
+      
+      const serv35 = new Date(doa);
+      serv35.setFullYear(serv35.getFullYear() + 35);
+      
+      function fmt(d) {
+        return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+      }
+      
+      if (age60 <= serv35) {
+        document.getElementById('dueDateText').textContent = fmt(age60);
+        document.getElementById('dueReasonText').textContent = 'Age 60 statutory milestone reached first.';
+      } else {
+        document.getElementById('dueDateText').textContent = fmt(serv35);
+        document.getElementById('dueReasonText').textContent = '35 Years of Public Service milestone reached first.';
+      }
+    }
+  </script>
+</body>
+</html>

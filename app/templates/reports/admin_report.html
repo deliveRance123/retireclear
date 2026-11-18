@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}Administrative Analytics{% endblock %}
+{% block page_title %}Administrative Statistics & MDA Analytics{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+  <div class="col-md-3">
+    <div class="card-metric">
+      <div class="metric-label">Total Staff</div>
+      <div class="metric-number">{{ metrics.total_employees }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card-metric accent-gold">
+      <div class="metric-label">Total Applications</div>
+      <div class="metric-number">{{ metrics.total_applications }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card-metric accent-success">
+      <div class="metric-label">Approved Clearances</div>
+      <div class="metric-number">{{ metrics.approved_applications }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card-metric accent-danger">
+      <div class="metric-label">Rejected Records</div>
+      <div class="metric-number">{{ metrics.rejected_applications }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- Department Distribution -->
+  <div class="col-lg-7">
+    <div class="card card-custom p-4 h-100">
+      <h5 class="fw-bold text-dark-evergreen mb-3">Retirement Applications Distribution by Department</h5>
+      <div class="table-responsive">
+        <table class="table table-custom align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Department Name</th>
+              <th>Total Public Servants Registered</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for dept, count in metrics.dept_breakdown %}
+            <tr>
+              <td class="fw-semibold">{{ dept }}</td>
+              <td><span class="badge bg-light text-dark border">{{ count }} Officers</span></td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="2" class="text-center py-3 text-muted">No department distribution available.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Predictive Analytics & Retirement Trend Analysis (PDF Section 3.8.1 & 2.1) -->
+  <div class="col-lg-5">
+    <div class="card card-custom p-4 h-100">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <div class="rounded-circle bg-success-subtle text-success p-2">
+          <i class="bi bi-graph-up-arrow fs-5"></i>
+        </div>
+        <div>
+          <h5 class="fw-bold text-dark-evergreen mb-0">Predictive Analytics</h5>
+          <small class="text-muted">Retirement Trend & Liability Model</small>
+        </div>
+      </div>
+
+      <p class="text-muted small mb-3">
+        Algorithmic forecasting of workforce retirement rates, upcoming pension liabilities, and succession planning replacement needs.
+      </p>
+
+      <div class="d-flex flex-column gap-3">
+        <div class="p-3 bg-light rounded-3 border">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Projected Exits (Next 12 Mos):</span>
+            <span class="fw-bold text-dark-evergreen fs-6">{{ metrics.predictive_analytics.projected_retirements_12m }} Officers</span>
+          </div>
+          <small class="text-muted" style="font-size: 0.78rem;">Employees reaching age 60 or 35 years service within 1 year.</small>
+        </div>
+
+        <div class="p-3 bg-light rounded-3 border">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Projected Exits (12–24 Mos):</span>
+            <span class="fw-bold text-dark-evergreen fs-6">{{ metrics.predictive_analytics.projected_retirements_24m }} Officers</span>
+          </div>
+          <small class="text-muted" style="font-size: 0.78rem;">Secondary exit horizon for early planning.</small>
+        </div>
+
+        <div class="p-3 bg-light rounded-3 border">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Est. Gratuity Liability (12 Mos):</span>
+            <span class="fw-bold text-success fs-6">{{ metrics.predictive_analytics.projected_pension_liability_12m }}</span>
+          </div>
+          <small class="text-muted" style="font-size: 0.78rem;">Calculated statutory severance & initial gratuity reserves.</small>
+        </div>
+
+        <div class="p-3 bg-light rounded-3 border">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Workforce Succession Turnover:</span>
+            <span class="fw-bold text-warning fs-6">{{ metrics.predictive_analytics.workforce_succession_need }}</span>
+          </div>
+          <small class="text-muted" style="font-size: 0.78rem;">Proportion of public service cadre transitioning to retirement.</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

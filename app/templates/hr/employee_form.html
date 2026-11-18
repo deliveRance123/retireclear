@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <div class="card card-custom p-4 mb-4">
+      <div class="mb-4 pb-3 border-bottom">
+        <h4 class="fw-bold text-dark-evergreen mb-1">{{ title }}</h4>
+        <p class="text-muted small mb-0">Record public servant biological, posting, and statutory tenure information.</p>
+      </div>
+
+      <form method="POST" action="{{ request.path }}" enctype="multipart/form-data" novalidate>
+        {{ form.hidden_tag() }}
+
+        <!-- SECTION 1: Bio-Data -->
+        <h6 class="fw-bold text-dark-evergreen mb-3 pb-1 border-bottom">
+          <i class="bi bi-person me-1"></i> Section 1: Biographical Identification
+        </h6>
+        
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <label class="form-label" for="staff_number">Staff Number *</label>
+            {{ form.staff_number(class="form-control" + (" is-invalid" if form.staff_number.errors else ""), placeholder="FGN/EDU/2018/00125", id="staff_number") }}
+            {% for err in form.staff_number.errors %}<div class="invalid-feedback">{{ err }}</div>{% endfor %}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="first_name">First Name *</label>
+            {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else ""), id="first_name") }}
+            {% for err in form.first_name.errors %}<div class="invalid-feedback">{{ err }}</div>{% endfor %}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="middle_name">Middle Name</label>
+            {{ form.middle_name(class="form-control", id="middle_name") }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="last_name">Surname / Last Name *</label>
+            {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else ""), id="last_name") }}
+            {% for err in form.last_name.errors %}<div class="invalid-feedback">{{ err }}</div>{% endfor %}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="gender">Gender *</label>
+            {{ form.gender(class="form-select", id="gender") }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="date_of_birth">Date of Birth *</label>
+            {{ form.date_of_birth(class="form-control" + (" is-invalid" if form.date_of_birth.errors else ""), type="date", id="date_of_birth") }}
+            {% for err in form.date_of_birth.errors %}<div class="invalid-feedback">{{ err }}</div>{% endfor %}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="state_of_origin">State of Origin *</label>
+            {{ form.state_of_origin(class="form-select", id="state_of_origin") }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="lga">L.G.A.</label>
+            {{ form.lga(class="form-control", placeholder="e.g. Ikeja, Ibadan North", id="lga") }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="passport_photo">Passport Photograph</label>
+            {{ form.passport_photo(class="form-control", id="passport_photo") }}
+          </div>
+        </div>
+
+        <!-- SECTION 2: Contact & Identity -->
+        <h6 class="fw-bold text-dark-evergreen mb-3 pb-1 border-bottom">
+          <i class="bi bi-telephone me-1"></i> Section 2: Contact Details & Identity Numbers
+        </h6>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <label class="form-label" for="phone_number">Phone Number (+234 format) *</label>
+            {{ form.phone_number(class="form-control" + (" is-invalid" if form.phone_number.errors else ""), placeholder="+2348012345678", id="phone_number") }}
+            {% for err in form.phone_number.errors %}<div class="invalid-feedback">{{ err }}</div>{% endfor %}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="email">Official Government Email *</label>
+            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="officer@mda.gov.ng", id="email") }}
+            {% for err in form.email.errors %}<div class="invalid-feedback">{{ err }}</div>{% endfor %}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="nin">National Identity No. (NIN)</label>
+            {{ form.nin(class="form-control", placeholder="11 digits", id="nin") }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="residential_address">Residential Address *</label>
+            {{ form.residential_address(class="form-control", rows=2, id="residential_address") }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="city">City / Town *</label>
+            {{ form.city(class="form-control", placeholder="e.g. Abuja, Lagos, Enugu", id="city") }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="state_of_residence">State of Residence *</label>
+            {{ form.state_of_residence(class="form-select", id="state_of_residence") }}
+          </div>
+        </div>
+
+        <!-- SECTION 3: Service & Postings Details -->
+        <h6 class="fw-bold text-dark-evergreen mb-3 pb-1 border-bottom">
+          <i class="bi bi-briefcase me-1"></i> Section 3: Official Appointment & Cadre
+        </h6>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label" for="ministry_or_agency">Ministry / Department / Agency (MDA) *</label>
+            {{ form.ministry_or_agency(class="form-select", id="ministry_or_agency") }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="department">Department / Directorate *</label>
+            {{ form.department(class="form-control", placeholder="e.g. Planning, Research & Statistics", id="department") }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="current_cadre">Cadre & Rank *</label>
+            {{ form.current_cadre(class="form-control", placeholder="e.g. Chief Education Officer", id="current_cadre") }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="current_grade_level">Current Grade Level *</label>
+            {{ form.current_grade_level(class="form-select", id="current_grade_level") }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="current_step">Step (1 - 15) *</label>
+            {{ form.current_step(class="form-control", type="number", min="1", max="15", id="current_step") }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="appointment_date">Date of First Appointment *</label>
+            {{ form.appointment_date(class="form-control", type="date", id="appointment_date") }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="confirmation_date">Confirmation Date</label>
+            {{ form.confirmation_date(class="form-control", type="date", id="confirmation_date") }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="statutory_retirement_date">Statutory Retirement Date *</label>
+            {{ form.statutory_retirement_date(class="form-control", type="date", id="statutory_retirement_date") }}
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+          <a href="{{ url_for('hr.employees') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Cancel
+          </a>
+          <button type="submit" class="btn btn-primary px-4 py-2">
+            <i class="bi bi-check2-circle me-1"></i> Save Public Servant Record
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

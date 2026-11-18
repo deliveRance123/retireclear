@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}HR Dashboard{% endblock %}
+{% block page_title %}Human Resources Administration{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <div>
+    <h3 class="fw-bold mb-1">Human Resources Directorate</h3>
+    <p class="text-muted small mb-0">Management of public servant service tenure, promotion histories, and retirement filings.</p>
+  </div>
+  <div>
+    <a href="{{ url_for('hr.register_employee') }}" class="btn btn-primary btn-sm">
+      <i class="bi bi-person-plus me-1"></i> Register Public Servant
+    </a>
+  </div>
+</div>
+
+<!-- Metrics -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card-metric">
+      <div class="metric-label">Registered Staff</div>
+      <div class="metric-number">{{ total_employees }}</div>
+      <small class="text-muted"><i class="bi bi-people"></i> In Service</small>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-metric accent-gold">
+      <div class="metric-label">Upcoming Retirements</div>
+      <div class="metric-number">{{ upcoming_retirements }}</div>
+      <small class="text-muted"><i class="bi bi-calendar-event"></i> Next 6 Months</small>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-metric accent-terracotta">
+      <div class="metric-label">Pending HR Verification</div>
+      <div class="metric-number">{{ pending_hr_apps }}</div>
+      <small class="text-muted"><i class="bi bi-inbox"></i> Needs Service Check</small>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card-metric accent-success">
+      <div class="metric-label">Verified Records</div>
+      <div class="metric-number">{{ verified_records }}</div>
+      <small class="text-muted"><i class="bi bi-check-circle"></i> Service Verified</small>
+    </div>
+  </div>
+</div>
+
+<!-- Pending HR Verification Table -->
+<div class="card card-custom p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="fw-bold text-dark-evergreen mb-0">Applications Requiring HR Service Verification</h6>
+    <span class="badge badge-status-pending">{{ pending_applications | length }} Pending</span>
+  </div>
+  
+  <div class="table-responsive">
+    <table class="table table-custom align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Application Ref</th>
+          <th>Staff Number</th>
+          <th>Officer Name</th>
+          <th>Ministry & Department</th>
+          <th>Tenure</th>
+          <th>Reason</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for app in pending_applications %}
+        <tr>
+          <td class="fw-bold">{{ app.application_reference }}</td>
+          <td><span class="badge bg-light text-dark border">{{ app.employee.staff_number }}</span></td>
+          <td class="fw-semibold">{{ app.employee.full_name }}</td>
+          <td>
+            <div>{{ app.employee.department }}</div>
+            <small class="text-muted">{{ app.employee.ministry_or_agency }}</small>
+          </td>
+          <td>{{ app.employee.years_of_service }} yrs</td>
+          <td><small class="text-muted">{{ app.reason_for_retirement }}</small></td>
+          <td>
+            <a href="{{ url_for('hr.verify_records', application_id=app.id) }}" class="btn btn-sm btn-primary py-1 px-3">
+              <i class="bi bi-clipboard-check"></i> Verify
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="text-center py-4 text-muted">
+            <i class="bi bi-check2-circle text-success fs-4 d-block mb-1"></i>
+            All incoming employee retirement applications have been verified by HR.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Recent Employees Directory -->
+<div class="card card-custom p-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="fw-bold text-dark-evergreen mb-0">Recently Enrolled Public Servants</h6>
+    <a href="{{ url_for('hr.employees') }}" class="small fw-semibold">View Staff Directory <i class="bi bi-arrow-right"></i></a>
+  </div>
+  
+  <div class="table-responsive">
+    <table class="table table-custom align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Staff No.</th>
+          <th>Full Name</th>
+          <th>Grade Level</th>
+          <th>Ministry / Agency</th>
+          <th>Appointment Date</th>
+          <th>Retirement Date</th>
+          <th>Profile</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for emp in recent_employees %}
+        <tr>
+          <td class="fw-bold">{{ emp.staff_number }}</td>
+          <td>{{ emp.full_name }}</td>
+          <td><span class="badge bg-light text-dark border">{{ emp.current_grade_level }}</span></td>
+          <td>{{ emp.ministry_or_agency }}</td>
+          <td>{{ emp.appointment_date.strftime('%d/%m/%Y') }}</td>
+          <td>{{ emp.statutory_retirement_date.strftime('%d/%m/%Y') }}</td>
+          <td>
+            <a href="{{ url_for('hr.employee_detail', employee_id=emp.id) }}" class="btn btn-sm btn-outline-primary py-0 px-2">
+              <i class="bi bi-person"></i> View
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="text-center py-4 text-muted">No civil servant records found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

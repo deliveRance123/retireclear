@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Clearance Report{% endblock %}
+{% block page_title %}Official Retirement Clearance Report{% endblock %}
+
+{% block content %}
+<div class="card card-custom p-4 mb-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <h4 class="fw-bold text-dark-evergreen mb-1">Retirement Clearance Master Register</h4>
+      <p class="text-muted small mb-0">Record of employee clearance decisions, AI recommendations, and pension status.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{{ url_for('reports.clearance_report', department=department, status=status, export='csv') }}" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export CSV
+      </a>
+      <button onclick="window.print()" class="btn btn-light border btn-sm">
+        <i class="bi bi-printer me-1"></i> Print Report
+      </button>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-custom align-middle mb-0">
+      <thead>
+        <tr>
+          <th>App Ref</th>
+          <th>Staff Details</th>
+          <th>Ministry & Dept</th>
+          <th>Age / Tenure</th>
+          <th>AI Screen</th>
+          <th>Decision</th>
+          <th>Approving Officer</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td class="fw-bold">{{ r.application_ref }}</td>
+          <td>
+            <div class="fw-semibold">{{ r.full_name }}</div>
+            <small class="text-muted">{{ r.staff_number }} • GL {{ r.grade_level }}</small>
+          </td>
+          <td>
+            <div>{{ r.department }}</div>
+            <small class="text-muted">{{ r.ministry }}</small>
+          </td>
+          <td>{{ r.age }} yrs / {{ r.years_of_service }} yrs</td>
+          <td>
+            {% if r.ai_recommendation == 'Eligible' %}
+              <span class="badge badge-status-approved">Eligible</span>
+            {% else %}
+              <span class="badge badge-status-pending">{{ r.ai_recommendation }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if r.clearance_decision == 'Approved' %}
+              <span class="badge badge-status-approved">{{ r.clearance_decision }} ({{ r.decision_date }})</span>
+            {% elif r.clearance_decision == 'Rejected' %}
+              <span class="badge badge-status-rejected">{{ r.clearance_decision }}</span>
+            {% else %}
+              <span class="badge badge-status-pending">{{ r.clearance_decision }}</span>
+            {% endif %}
+          </td>
+          <td><small>{{ r.approving_officer }}</small></td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="text-center py-4 text-muted">No clearance records found for current criteria.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

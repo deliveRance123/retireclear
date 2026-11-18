@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Account Profile & Settings{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-xl-9">
+    <div class="card card-custom border-0 shadow-sm">
+      <div class="card-body p-4 p-md-5">
+        
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 pb-4 mb-4 border-bottom">
+          <div class="d-flex align-items-center gap-3">
+            <div class="position-relative">
+              {% if current_user.avatar_url %}
+                <img src="{{ current_user.avatar_url }}" alt="{{ current_user.full_name }}" class="rounded-circle border border-2 border-white shadow-sm" style="width: 72px; height: 72px; object-fit: cover;">
+              {% else %}
+                <div class="rounded-circle bg-dark-evergreen text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 72px; height: 72px; font-size: 1.5rem; font-weight: 700;">
+                  {{ current_user.first_name[:1] }}{{ current_user.last_name[:1] }}
+                </div>
+              {% endif %}
+            </div>
+            <div>
+              <h4 class="fw-bold mb-1 text-dark-evergreen">{{ current_user.full_name }}</h4>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-light text-dark border px-2 py-1">
+                  <i class="bi bi-shield-check text-success me-1"></i>{{ current_user.role.display_name if current_user.role else 'Public Servant' }}
+                </span>
+                <span class="text-muted small">@{{ current_user.username }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="text-md-end text-muted small">
+            <div>Member since {{ current_user.created_at.strftime('%d/%m/%Y') if current_user.created_at else 'Active' }}</div>
+            <div>Official Email: <strong>{{ current_user.email }}</strong></div>
+          </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.profile') }}" enctype="multipart/form-data" novalidate>
+          {{ form.hidden_tag() }}
+
+          <div class="row g-4 mb-4">
+            <!-- First Name -->
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="first_name">First Name</label>
+              {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else ""), id="first_name") }}
+              {% if form.first_name.errors %}
+                <div class="invalid-feedback">{{ form.first_name.errors[0] }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Last Name -->
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="last_name">Last / Surname</label>
+              {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else ""), id="last_name") }}
+              {% if form.last_name.errors %}
+                <div class="invalid-feedback">{{ form.last_name.errors[0] }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Phone -->
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="phone">Contact Phone</label>
+              {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else ""), id="phone", placeholder="+234...") }}
+              {% if form.phone.errors %}
+                <div class="invalid-feedback">{{ form.phone.errors[0] }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Official Email (Read-only for security) -->
+            <div class="col-12 col-md-6">
+              <label class="form-label text-muted">Official Email Address (Secured)</label>
+              <input type="email" class="form-control bg-light" value="{{ current_user.email }}" readonly disabled>
+              <div class="form-text small">Official email changes require security administrator approval.</div>
+            </div>
+
+            <!-- Profile Picture Upload -->
+            <div class="col-12">
+              <label class="form-label" for="avatar">Update Profile Photo / Avatar</label>
+              {{ form.avatar(class="form-control" + (" is-invalid" if form.avatar.errors else ""), id="avatar") }}
+              <div class="form-text small">Accepted formats: JPG, PNG, WEBP (Max 5MB). Photo is automatically cropped for security documents and badges.</div>
+              {% if form.avatar.errors %}
+                <div class="invalid-feedback d-block">{{ form.avatar.errors[0] }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between pt-3 border-top">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left me-1"></i> Return
+            </a>
+            <button type="submit" class="btn btn-primary px-4 py-2">
+              <i class="bi bi-check2-circle me-1"></i> Save Changes
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

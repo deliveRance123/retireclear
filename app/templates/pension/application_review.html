@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% block title %}Pension Adjudication — {{ application.application_reference }}{% endblock %}
+{% block page_title %}Pension Clearance Adjudication{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Left Column: Dossier -->
+  <div class="col-lg-8">
+    <div class="card card-custom p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex align-items-center gap-3">
+          <div style="width: 60px; height: 60px; flex-shrink: 0;">
+            <img src="{{ employee.passport_url }}" alt="{{ employee.full_name }}" class="rounded-circle img-thumbnail w-100 h-100 object-fit-cover shadow-sm">
+          </div>
+          <div>
+            <span class="badge bg-light text-dark border mb-1">Clearance Dossier: {{ application.application_reference }}</span>
+            <h4 class="fw-bold text-dark-evergreen mb-0">{{ employee.full_name }}</h4>
+            <small class="text-muted">Staff No: <strong>{{ employee.staff_number }}</strong> • {{ employee.ministry_or_agency }}</small>
+          </div>
+        </div>
+        <span class="badge badge-status-approved fs-6">{{ application.current_status }}</span>
+      </div>
+
+      <!-- Verified Service Ledger -->
+      <div class="p-3 mb-4 rounded-3 bg-light border">
+        <h6 class="fw-bold text-dark-evergreen mb-2 small text-uppercase">HR Verified Service Record:</h6>
+        <div class="row g-2 small">
+          <div class="col-sm-6">
+            <span class="text-muted">Current Rank & Cadre:</span> <strong>{{ employee.current_cadre }} ({{ employee.current_grade_level }})</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Total Pensionable Service:</span> <strong>{{ employee.years_of_service }} Years</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Date of First Appointment:</span> <strong>{{ employee.appointment_date.strftime('%d/%m/%Y') }}</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Date of Birth & Age:</span> <strong>{{ employee.date_of_birth.strftime('%d/%m/%Y') }} ({{ employee.age }} yrs old)</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Effective Retirement Date:</span> <strong class="text-success">{{ application.proposed_retirement_date.strftime('%d/%m/%Y') }}</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Retirement Reason:</span> <strong>{{ application.reason_for_retirement }}</strong>
+          </div>
+        </div>
+
+        {% if application.hr_notes %}
+          <div class="mt-2 pt-2 border-top text-muted small">
+            <i class="bi bi-chat-left-text me-1"></i> <strong>HR Officer Remarks:</strong> {{ application.hr_notes }}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Pension Account Verification -->
+      <h6 class="fw-bold text-dark-evergreen mb-3">Registered Retirement Savings Account (RSA)</h6>
+      {% if employee.pension_records %}
+        {% set pen = employee.pension_records[0] %}
+        <div class="p-3 mb-4 rounded-3 bg-white border">
+          <div class="row g-2 small">
+            <div class="col-sm-6">
+              <span class="text-muted">Licensed PFA:</span> <strong>{{ pen.pfa_name }}</strong>
+            </div>
+            <div class="col-sm-6">
+              <span class="text-muted">RSA PIN:</span> <strong><code>{{ pen.rsa_pin }}</code></strong>
+            </div>
+            <div class="col-sm-6">
+              <span class="text-muted">Accumulated Balance:</span> <strong class="text-success fs-6">₦{{ "{:,.2f}".format(pen.total_contributions_estimate) }}</strong>
+            </div>
+            <div class="col-sm-6">
+              <span class="text-muted">Account Status:</span> <span class="badge badge-status-approved">{{ pen.status }}</span>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="alert alert-warning small mb-4">
+          <i class="bi bi-exclamation-triangle me-1"></i> No PFA account recorded on file. Clearance requires verified RSA account.
+        </div>
+      {% endif %}
+
+      <!-- Adjudication Action Form -->
+      <div class="border-top pt-4">
+        <h5 class="fw-bold text-dark-evergreen mb-3">Clearance Adjudication & Decision</h5>
+        
+        <form method="POST" action="{{ url_for('pension.application_review', application_id=application.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="mb-3">
+            <label class="form-label">Official Clearance Remarks / Order</label>
+            <textarea name="remarks" class="form-control" rows="3" placeholder="Enter pension clearance order, remarks, and gratuity directives..."></textarea>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <button type="submit" name="decision" value="approve" class="btn btn-primary px-4 py-2">
+              <i class="bi bi-patch-check me-1"></i> Approve Clearance & Issue Certificate
+            </button>
+            <button type="button" class="btn btn-outline-warning" data-bs-toggle="collapse" data-bs-target="#returnCollapse">
+              <i class="bi bi-arrow-repeat me-1"></i> Request Further Verification
+            </button>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="collapse" data-bs-target="#rejectCollapse">
+              <i class="bi bi-x-circle me-1"></i> Reject Application
+            </button>
+          </div>
+
+          <!-- Collapsible Request Further Verification -->
+          <div class="collapse mb-3" id="returnCollapse">
+            <div class="p-3 bg-light rounded border border-warning">
+              <label class="form-label text-warning-emphasis fw-bold">Clarification Notes for HR Officer:</label>
+              <textarea name="request_notes" class="form-control mb-2" rows="2" placeholder="Specify missing letters, unconfirmed dates, or gazette discrepancies..."></textarea>
+              <button type="submit" name="decision" value="request_verification" class="btn btn-warning btn-sm">
+                Return Application to HR
+              </button>
+            </div>
+          </div>
+
+          <!-- Collapsible Rejection Box -->
+          <div class="collapse mb-3" id="rejectCollapse">
+            <div class="p-3 bg-light rounded border border-danger">
+              <label class="form-label text-danger fw-bold">Official Statutory Rejection Ground:</label>
+              <textarea name="rejection_reason" class="form-control mb-2" rows="2" placeholder="State reason under Public Service Rules (e.g. Ineligible service tenure, age discrepancy)..."></textarea>
+              <button type="submit" name="decision" value="reject" class="btn btn-danger btn-sm">
+                Confirm Official Rejection
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: AI Verification Insights -->
+  <div class="col-lg-4">
+    <div class="card card-custom p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold text-dark-evergreen mb-0">AI Assessment Audit</h6>
+        <span class="badge bg-light text-dark border">Decision Support</span>
+      </div>
+
+      {% if ai_ver %}
+        <div class="mb-3">
+          <div class="small text-muted">Statutory Recommendation:</div>
+          <span class="badge {% if ai_ver.overall_eligibility_recommendation == 'Eligible' %}badge-status-approved{% else %}badge-status-pending{% endif %} fs-6 px-3 py-1 mt-1">
+            {{ ai_ver.overall_eligibility_recommendation }}
+          </span>
+        </div>
+
+        <div class="p-2 mb-3 bg-light rounded small">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Calculated Age:</span>
+            <strong>{{ ai_ver.calculated_age }} Years</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Verified Service:</span>
+            <strong>{{ ai_ver.calculated_years_of_service }} Years</strong>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Assessed Risk:</span>
+            <span class="badge bg-success-subtle text-success border">{{ ai_ver.fraud_risk_level }} Risk</span>
+          </div>
+        </div>
+
+        <h6 class="fw-bold text-dark-evergreen mb-2 small text-uppercase">Evaluated Rules:</h6>
+        <div class="list-group list-group-flush mb-3">
+          {% for r in ai_ver.rule_evaluation_details or [] %}
+          <div class="list-group-item px-0 py-2 border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="small fw-semibold">{{ r.rule_name }}</span>
+              {% if r.passed %}
+                <span class="badge bg-success-subtle text-success border">Passed</span>
+              {% else %}
+                <span class="badge bg-warning-subtle text-warning border">Flag</span>
+              {% endif %}
+            </div>
+            <div class="text-muted small mt-1" style="font-size: 0.78rem;">{{ r.explanation }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-muted small">No AI verification run recorded.</div>
+      {% endif %}
+
+      <a href="{{ url_for('verification.detail', application_id=application.id) }}" class="btn btn-outline-primary btn-sm w-100">
+        <i class="bi bi-search me-1"></i> Full Verification Detail
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

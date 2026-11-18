@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}Certificate — {{ certificate.certificate_number }}{% endblock %}
+{% block page_title %}Official Retirement Clearance Certificate{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <!-- Action Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+      <a href="{{ url_for('employee.dashboard') if current_user.has_role('civil_servant') else url_for('pension.clearances') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Return
+      </a>
+      <div class="d-flex gap-2">
+        <a href="{{ url_for('certificates.print_cert', certificate_id=certificate.id) }}" target="_blank" class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-printer me-1"></i> Print-Friendly View
+        </a>
+        <a href="{{ url_for('certificates.download_pdf', certificate_id=certificate.id) }}" class="btn btn-primary btn-sm">
+          <i class="bi bi-download me-1"></i> Download Official PDF
+        </a>
+      </div>
+    </div>
+
+    <!-- Official Framed Certificate -->
+    <div class="certificate-frame">
+      <!-- Watermark text for sample demo -->
+      {% if certificate.is_sample %}
+        <div class="text-center mb-2">
+          <span class="badge bg-danger-subtle text-danger border px-3 py-1 fw-bold">
+            OFFICIAL DEMONSTRATION / SAMPLE DOCUMENT — NOT VALID FOR LEGAL TENDER
+          </span>
+        </div>
+      {% endif %}
+
+      <!-- Certificate Header -->
+      <div class="position-relative text-center mb-4">
+        <div class="position-absolute end-0 top-0 d-none d-md-block" style="width: 85px; height: 105px;">
+          <img src="{{ employee.passport_url }}" alt="Passport" class="w-100 h-100 object-fit-cover border border-2 shadow-sm rounded-1" style="border-color: var(--soft-gold) !important;">
+          <div class="text-muted text-center mt-1" style="font-size: 0.65rem;">Verified Officer</div>
+        </div>
+        <img src="{{ url_for('static', filename='images/favicon.svg') }}" alt="Emblem" class="cert-seal mb-2">
+        <h4 class="fw-bold text-dark-evergreen mb-0" style="letter-spacing: 2px;">NATIONAL CIVIL SERVICE COMMISSION</h4>
+        <div class="fw-semibold text-secondary small text-uppercase" style="letter-spacing: 1px;">
+          Office of the Head of the Civil Service
+        </div>
+        <div class="small text-muted">Public Service Commission • Pension Clearance Administration</div>
+        
+        <div class="my-4">
+          <h2 class="fw-bold" style="color: var(--primary-forest); letter-spacing: 1px; font-family: serif;">
+            NATIONAL RETIREMENT CLEARANCE CERTIFICATE
+          </h2>
+          <div class="text-muted small">Verification Token: <code>{{ certificate.verification_token }}</code></div>
+        </div>
+      </div>
+
+      <!-- Certificate Recipient Body -->
+      <div class="text-center px-md-5 mb-4" style="line-height: 1.8; font-size: 1.05rem;">
+        This is to certify that 
+        <strong class="text-dark-evergreen fs-5 text-uppercase d-block my-2" style="letter-spacing: 1px;">
+          {{ employee.full_name }}
+        </strong>
+        Staff Number: <strong class="badge bg-light text-dark border px-2 py-1 fs-6">{{ employee.staff_number }}</strong>, 
+        formerly serving in the <strong>{{ employee.ministry_or_agency }}</strong> 
+        (Department of {{ employee.department }}) at 
+        Grade Level <strong>{{ employee.current_grade_level }} (Step {{ employee.current_step }})</strong>, 
+        having rendered <strong>{{ employee.years_of_service }} Years</strong> of meritorious public service, 
+        has completed all statutory clearance procedures and is hereby certified cleared for statutory pension entitlements.
+      </div>
+
+      <!-- Details Summary Grid -->
+      <div class="row g-3 p-3 rounded-3 bg-light border mb-4 small mx-md-3">
+        <div class="col-sm-6 col-md-3">
+          <span class="text-muted">Certificate Number:</span>
+          <div class="fw-bold text-dark-evergreen">{{ certificate.certificate_number }}</div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <span class="text-muted">Date of First Appointment:</span>
+          <div class="fw-bold">{{ employee.appointment_date.strftime('%d/%m/%Y') }}</div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <span class="text-muted">Effective Retirement Date:</span>
+          <div class="fw-bold text-success">{{ certificate.application.proposed_retirement_date.strftime('%d/%m/%Y') }}</div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <span class="text-muted">Approval Date:</span>
+          <div class="fw-bold">{{ certificate.issued_at.strftime('%d/%m/%Y') }}</div>
+        </div>
+      </div>
+
+      <!-- Signatures & QR Code Verification -->
+      <div class="row align-items-center mt-5 pt-4 border-top mx-md-3">
+        <div class="col-sm-3 text-center text-sm-start mb-3 mb-sm-0">
+          {% if certificate.qr_code_path %}
+            <img src="{{ url_for('static', filename=certificate.qr_code_path) }}" alt="QR Code" width="90" height="90" class="img-thumbnail border">
+            <div class="text-muted small mt-1" style="font-size: 0.68rem;">Scan to verify authenticity</div>
+          {% endif %}
+        </div>
+
+        <div class="col-sm-5 text-center text-sm-start mb-3 mb-sm-0">
+          <div class="small fw-bold text-dark-evergreen">Digital Verification Reference</div>
+          <div class="small text-muted" style="font-size: 0.75rem;">
+            Public Verification Portal:<br>
+            <a href="{{ url_for('certificates.public_verify', token=certificate.verification_token, _external=True) }}" target="_blank">
+              {{ url_for('certificates.public_verify', token=certificate.verification_token, _external=True) }}
+            </a>
+          </div>
+        </div>
+
+        <div class="col-sm-4 text-center">
+          <div class="fw-bold text-dark-evergreen pb-1" style="font-family: cursive; font-size: 1.15rem;">
+            {{ clearance.approving_officer.full_name }}
+          </div>
+          <div class="border-top border-dark pt-1">
+            <div class="small fw-bold">Permanent Secretary / Director-General</div>
+            <div class="text-muted small" style="font-size: 0.7rem;">Federal Civil Service Commission</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

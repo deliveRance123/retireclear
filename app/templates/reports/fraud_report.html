@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}Fraud Detection Report{% endblock %}
+{% block page_title %}Fraud Detection & Anomaly Report{% endblock %}
+
+{% block content %}
+<div class="card card-custom p-4 mb-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <h4 class="fw-bold text-dark-evergreen mb-1">Public Sector Integrity & Anomaly Register</h4>
+      <p class="text-muted small mb-0">Record of flagged applications, duplicate public service numbers, and inquiry findings.</p>
+    </div>
+    <button onclick="window.print()" class="btn btn-light border btn-sm">
+      <i class="bi bi-printer me-1"></i> Print Audit Report
+    </button>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="fw-bold text-danger mb-0">
+      <i class="bi bi-shield-exclamation me-1"></i> Fraud Detection & Anomaly Register (Per Specification Section 3.8.5)
+    </h6>
+    <span class="badge bg-danger-subtle text-danger border">{{ data.flagged_cases | length }} Flagged Record(s)</span>
+  </div>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-custom align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Application & Staff No</th>
+          <th>Employee Details</th>
+          <th>Duplicate Records</th>
+          <th>Missing Documents</th>
+          <th>Suspicious Activities</th>
+          <th>Identity Alignment</th>
+          <th>AI Scores</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in data.flagged_cases %}
+        <tr>
+          <td>
+            <div class="fw-bold text-danger">{{ c.application_ref }}</div>
+            <small class="text-muted">{{ c.staff_number }}</small>
+          </td>
+          <td>
+            <div class="fw-semibold">{{ c.employee_name }}</div>
+            <small class="text-muted">{{ c.department }}</small>
+          </td>
+          <td>
+            {% if c.duplicate_records %}
+              {% for d in c.duplicate_records %}
+                <span class="badge bg-danger-subtle text-danger border d-block text-wrap mb-1" style="font-size: 0.72rem;">{{ d }}</span>
+              {% endfor %}
+            {% else %}
+              <span class="text-success small fw-semibold"><i class="bi bi-check-circle"></i> None</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if c.missing_documents %}
+              {% for m in c.missing_documents %}
+                <span class="badge bg-warning-subtle text-warning border d-block mb-1" style="font-size: 0.72rem;">{{ m }}</span>
+              {% endfor %}
+            {% else %}
+              <span class="text-success small fw-semibold"><i class="bi bi-check-circle"></i> Complete</span>
+            {% endif %}
+          </td>
+          <td>
+            {% for s in c.suspicious_activities %}
+              <div class="small text-danger fw-semibold mb-1" style="font-size: 0.76rem;">• {{ s }}</div>
+            {% endfor %}
+          </td>
+          <td>
+            {% if 'Inconsistent' in c.identity_mismatch or 'Mismatch' in c.identity_mismatch %}
+              <span class="badge bg-danger-subtle text-danger border">{{ c.identity_mismatch }}</span>
+            {% elif c.identity_mismatch == 'Full Name Match' or c.identity_mismatch == 'Exact Match' %}
+              <span class="badge bg-success-subtle text-success border">Verified</span>
+            {% else %}
+              <span class="badge bg-light text-muted border">{{ c.identity_mismatch }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="small fw-bold text-danger">Fraud: {{ c.fraud_score }} / 100</div>
+            <small class="text-muted">Conf: {{ c.confidence_score }}%</small>
+          </td>
+          <td><span class="badge badge-status-flagged">{{ c.status }}</span></td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8" class="text-center py-4 text-muted">No flagged cases on record. All screened civil servants meet integrity standards.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h6 class="fw-bold text-dark-evergreen mb-3"><i class="bi bi-search me-1"></i> Auditor Investigation Outcomes</h6>
+  <div class="table-responsive">
+    <table class="table table-custom align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Inquiry Date</th>
+          <th>Auditor</th>
+          <th>Inquiry Type</th>
+          <th>Official Findings</th>
+          <th>Recommendation</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inv in data.investigations %}
+        <tr>
+          <td><small>{{ inv.created_at.strftime('%d/%m/%Y') }}</small></td>
+          <td class="fw-semibold">{{ inv.auditor.full_name }}</td>
+          <td><span class="badge bg-light text-dark border">{{ inv.investigation_type }}</span></td>
+          <td><div class="small text-muted">{{ inv.findings }}</div></td>
+          <td><small class="fw-semibold text-success">{{ inv.recommended_action }}</small></td>
+          <td><span class="badge badge-status-approved">{{ inv.status }}</span></td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center py-4 text-muted">No investigation outcomes logged.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% block title %}My Retirement Clearance{% endblock %}
+{% block page_title %}Public Servant Self-Service Portal{% endblock %}
+
+{% block content %}
+<div class="card card-custom p-4 mb-4 border-start border-4 border-success">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div class="d-flex align-items-center gap-3">
+      <div style="width: 72px; height: 72px; flex-shrink: 0;">
+        <img src="{{ employee.passport_url }}" alt="{{ employee.full_name }}" class="rounded-circle img-thumbnail w-100 h-100 object-fit-cover shadow-sm">
+      </div>
+      <div>
+        <span class="badge bg-light text-success border mb-1"><i class="bi bi-person-check me-1"></i> Public Servant Self-Service</span>
+        <h3 class="fw-bold mb-1">Welcome, {{ employee.full_name }}</h3>
+        <p class="text-muted small mb-0">
+          Staff Number: <strong>{{ employee.staff_number }}</strong> • 
+          {{ employee.ministry_or_agency }} ({{ employee.department }}) • 
+          Grade Level: <strong>{{ employee.current_grade_level }}</strong>
+        </p>
+      </div>
+    </div>
+    {% if not application %}
+      <a href="{{ url_for('employee.apply') }}" class="btn btn-primary">
+        <i class="bi bi-send me-1"></i> Start Retirement Application
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+{% if application %}
+  <!-- Active Application Progress Card -->
+  <div class="card card-custom p-4 mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4 pb-3 border-bottom">
+      <div>
+        <div class="small text-muted text-uppercase fw-semibold">Application Reference</div>
+        <div class="fs-4 fw-bold text-dark-evergreen">{{ application.application_reference }}</div>
+      </div>
+      <div>
+        {% if application.current_status == 'Approved' or application.current_status == 'Certificate Generated' %}
+          <span class="badge badge-status-approved fs-6 px-3 py-2"><i class="bi bi-patch-check"></i> {{ application.current_status }}</span>
+        {% elif application.current_status == 'Rejected' %}
+          <span class="badge badge-status-rejected fs-6 px-3 py-2"><i class="bi bi-x-circle"></i> {{ application.current_status }}</span>
+        {% elif 'Flagged' in application.current_status %}
+          <span class="badge badge-status-flagged fs-6 px-3 py-2"><i class="bi bi-exclamation-triangle"></i> Under Investigation</span>
+        {% else %}
+          <span class="badge badge-status-pending fs-6 px-3 py-2"><i class="bi bi-hourglass-split"></i> {{ application.current_status }}</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Stepper Workflow -->
+    <div class="stepper-wrapper mb-4">
+      <!-- Step 1: Submission -->
+      <div class="stepper-item completed">
+        <div class="step-counter"><i class="bi bi-check"></i></div>
+        <div class="step-name">Submitted</div>
+      </div>
+      
+      <!-- Step 2: Documents & Verification -->
+      <div class="stepper-item {% if application.documents %}completed{% else %}active{% endif %}">
+        <div class="step-counter">{% if application.documents %}<i class="bi bi-check"></i>{% else %}2{% endif %}</div>
+        <div class="step-name">Document Upload</div>
+      </div>
+
+      <!-- Step 3: HR Service Verification -->
+      <div class="stepper-item {% if application.hr_verified_at %}completed{% elif application.current_status == 'Pending HR Verification' %}active{% endif %}">
+        <div class="step-counter">{% if application.hr_verified_at %}<i class="bi bi-check"></i>{% else %}3{% endif %}</div>
+        <div class="step-name">HR Service Check</div>
+      </div>
+
+      <!-- Step 4: Pension Board Review -->
+      <div class="stepper-item {% if application.current_status in ('Approved', 'Certificate Generated') %}completed{% elif application.current_status == 'Pending Pension Review' %}active{% endif %}">
+        <div class="step-counter">{% if application.current_status in ('Approved', 'Certificate Generated') %}<i class="bi bi-check"></i>{% else %}4{% endif %}</div>
+        <div class="step-name">Pension Clearance</div>
+      </div>
+
+      <!-- Step 5: Clearance Certificate -->
+      <div class="stepper-item {% if application.certificate %}completed{% endif %}">
+        <div class="step-counter">{% if application.certificate %}<i class="bi bi-award"></i>{% else %}5{% endif %}</div>
+        <div class="step-name">Certificate Ready</div>
+      </div>
+    </div>
+
+    <!-- Action Bar / Next Action -->
+    <div class="p-3 rounded-3 bg-light d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+      <div>
+        <div class="fw-semibold text-dark-evergreen">Current Status:</div>
+        <div class="small text-muted">
+          {% if missing_docs %}
+            Please upload your remaining mandatory documents to complete file submission.
+          {% elif application.current_status == 'Pending HR Verification' %}
+            Your documents are in order and awaiting service record confirmation by your Ministry's HR Desk.
+          {% elif application.current_status == 'Pending Pension Review' %}
+            HR verification passed. Your application is before the Pension Clearance Board for final statutory clearance.
+          {% elif application.certificate %}
+            Your official Retirement Clearance Certificate is issued and ready for download.
+          {% else %}
+            Application is processing through authorized public service verification channels.
+          {% endif %}
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{{ url_for('employee.documents', application_id=application.id) }}" class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-file-earmark-arrow-up me-1"></i> Upload Documents ({{ application.documents | length }})
+        </a>
+        <a href="{{ url_for('employee.tracking', application_id=application.id) }}" class="btn btn-primary btn-sm">
+          <i class="bi bi-search me-1"></i> Detailed Timeline
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Certificate Available Banner if Generated -->
+  {% if application.certificate %}
+  <div class="card card-custom p-4 mb-4" style="background: linear-gradient(135deg, #10382E, #174C3C); color: white;">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-award-fill text-warning fs-1"></i>
+        <div>
+          <h5 class="fw-bold text-white mb-1">Official Retirement Clearance Certificate Ready</h5>
+          <div class="small text-white-50">Certificate No: <strong>{{ application.certificate.certificate_number }}</strong> • Issued {{ application.certificate.issued_at.strftime('%d/%m/%Y') }}</div>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{{ url_for('certificates.view', certificate_id=application.certificate.id) }}" class="btn btn-gold btn-sm">
+          <i class="bi bi-eye me-1"></i> View & Print
+        </a>
+        <a href="{{ url_for('certificates.download_pdf', certificate_id=application.certificate.id) }}" class="btn btn-light btn-sm">
+          <i class="bi bi-download me-1"></i> Download PDF
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Missing Documents Warning -->
+  {% if missing_docs %}
+  <div class="alert alert-warning card-custom border-0 p-4 mb-4">
+    <div class="d-flex align-items-start gap-3">
+      <i class="bi bi-exclamation-triangle-fill fs-3 text-warning"></i>
+      <div>
+        <h6 class="fw-bold mb-1">Mandatory Documents Pending Upload</h6>
+        <p class="small mb-2">To prevent clearance delays, please upload the following documents required under Civil Service Regulations:</p>
+        <ul class="mb-3 small">
+          {% for doc in missing_docs %}
+            <li><strong>{{ doc }}</strong></li>
+          {% endfor %}
+        </ul>
+        <a href="{{ url_for('employee.documents', application_id=application.id) }}" class="btn btn-secondary btn-sm">
+          <i class="bi bi-upload me-1"></i> Upload Missing Documents
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+{% else %}
+  <!-- Empty State Card -->
+  <div class="card card-custom text-center p-5 mb-4">
+    <div class="mb-3">
+      <i class="bi bi-folder-plus text-success" style="font-size: 3rem;"></i>
+    </div>
+    <h4 class="fw-bold text-dark-evergreen mb-2">No Active Retirement Application Found</h4>
+    <p class="text-muted col-md-6 mx-auto mb-4">
+      If you are approaching the statutory retirement age (60 years) or 35 years of pensionable public service, 
+      you can initiate your automated clearance verification here.
+    </p>
+    <div>
+      <a href="{{ url_for('employee.apply') }}" class="btn btn-primary px-4 py-2">
+        <i class="bi bi-send me-1"></i> Submit Retirement Application
+      </a>
+    </div>
+  </div>
+{% endif %}
+
+<!-- Quick Profile Summary Card -->
+<div class="card card-custom p-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="fw-bold text-dark-evergreen mb-0">Civil Servant Service Overview</h6>
+    <a href="{{ url_for('employee.profile') }}" class="small fw-semibold">Full Profile <i class="bi bi-arrow-right"></i></a>
+  </div>
+  
+  <div class="row g-3 small">
+    <div class="col-sm-6 col-md-3">
+      <div class="text-muted">Date of Birth</div>
+      <div class="fw-bold">{{ employee.date_of_birth.strftime('%d/%m/%Y') }} ({{ employee.age }} yrs)</div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="text-muted">Date of 1st Appointment</div>
+      <div class="fw-bold">{{ employee.appointment_date.strftime('%d/%m/%Y') }} ({{ employee.years_of_service }} yrs service)</div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="text-muted">Statutory Retirement Date</div>
+      <div class="fw-bold text-success">{{ employee.statutory_retirement_date.strftime('%d/%m/%Y') }}</div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <div class="text-muted">Pension Administrator</div>
+      <div class="fw-bold">
+        {% if employee.pension_records %}
+          {{ employee.pension_records[0].pfa_name }}
+        {% else %}
+          <span class="text-warning">Not Registered</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

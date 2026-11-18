@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Approved Clearances & Certificates{% endblock %}
+{% block page_title %}Issued Retirement Clearances{% endblock %}
+
+{% block content %}
+<div class="card card-custom p-4 mb-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <h4 class="fw-bold text-dark-evergreen mb-1">Approved Retirement Clearances</h4>
+      <p class="text-muted small mb-0">Official register of civil service clearances and generated digital certificates.</p>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-custom align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Certificate Number</th>
+          <th>Officer Details</th>
+          <th>Ministry & Dept</th>
+          <th>Decision Date</th>
+          <th>Approving Officer</th>
+          <th>Certificate Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for clr in clearances %}
+        <tr>
+          <td>
+            {% if clr.certificate %}
+              <div class="fw-bold text-dark-evergreen">{{ clr.certificate.certificate_number }}</div>
+              <small class="text-muted">Token: {{ clr.certificate.verification_token[:12] }}...</small>
+            {% else %}
+              <span class="badge bg-secondary">Pending Issuance</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="fw-semibold">{{ clr.application.employee.full_name }}</div>
+            <small class="text-muted">{{ clr.application.employee.staff_number }} • GL {{ clr.application.employee.current_grade_level }}</small>
+          </td>
+          <td>
+            <div>{{ clr.application.employee.department }}</div>
+            <small class="text-muted">{{ clr.application.employee.ministry_or_agency }}</small>
+          </td>
+          <td>{{ clr.decision_date.strftime('%d/%m/%Y') }}</td>
+          <td>{{ clr.approving_officer.full_name }}</td>
+          <td>
+            {% if clr.certificate %}
+              <div class="d-flex gap-1">
+                <a href="{{ url_for('certificates.view', certificate_id=clr.certificate.id) }}" class="btn btn-sm btn-outline-primary py-0 px-2" title="View Certificate">
+                  <i class="bi bi-eye"></i> View
+                </a>
+                <a href="{{ url_for('certificates.download_pdf', certificate_id=clr.certificate.id) }}" class="btn btn-sm btn-outline-secondary py-0 px-2" title="Download PDF">
+                  <i class="bi bi-download"></i> PDF
+                </a>
+              </div>
+            {% else %}
+              <span class="text-muted small">N/A</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center py-4 text-muted">No clearance records found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

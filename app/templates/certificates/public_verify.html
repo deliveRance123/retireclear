@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Public Certificate Verification — National Retirement Portal</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+  <style>
+    body {
+      background-color: var(--warm-ivory);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+    .verify-box {
+      max-width: 650px;
+      width: 100%;
+      background: var(--pure-white);
+      border-radius: 16px;
+      padding: 2.5rem;
+      border: 1px solid var(--muted-sage);
+      box-shadow: 0 10px 30px rgba(16, 56, 46, 0.08);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="verify-box">
+    <div class="text-center mb-4">
+      <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Logo" style="max-height: 48px; width: auto;" class="mb-3">
+      <h5 class="fw-bold text-dark-evergreen mb-1">Official Document Verification Service</h5>
+      <p class="text-muted small">National Civil Service — Clearance Authenticity Validator</p>
+    </div>
+
+    {% if is_valid %}
+      <div class="alert alert-success card-custom border-0 p-3 mb-4 text-center">
+        <i class="bi bi-patch-check-fill text-success fs-1 d-block mb-2"></i>
+        <h5 class="fw-bold mb-1">Document Authenticity Confirmed</h5>
+        <div class="small text-muted">
+          This document matches an authentic retirement clearance issued by the Civil Service Commission.
+        </div>
+      </div>
+
+      <div class="p-3 bg-light rounded-3 border mb-4">
+        <div class="row g-2 small">
+          <div class="col-sm-6">
+            <span class="text-muted">Certificate Number:</span>
+            <div class="fw-bold text-dark-evergreen">{{ cert.certificate_number }}</div>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Public Servant:</span>
+            <div class="fw-bold">{{ cert.employee_name }}</div>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Staff Number:</span>
+            <div class="fw-bold"><code>{{ cert.staff_number }}</code></div>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Issuing MDA:</span>
+            <div class="fw-bold">{{ cert.ministry }}</div>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Department:</span>
+            <div class="fw-bold">{{ cert.department }}</div>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Effective Retirement Date:</span>
+            <div class="fw-bold text-success">{{ cert.retirement_date }}</div>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Clearance Decision:</span>
+            <span class="badge badge-status-approved">{{ cert.decision }}</span>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted">Issue Date:</span>
+            <div class="fw-bold">{{ cert.issued_date }}</div>
+          </div>
+        </div>
+      </div>
+
+      {% if cert.is_sample %}
+        <div class="text-center small text-danger mb-3 fw-bold">
+          <i class="bi bi-info-circle"></i> Demonstration System Record (Fictional Sample Document)
+        </div>
+      {% endif %}
+
+    {% else %}
+      <div class="alert alert-danger card-custom border-0 p-4 text-center mb-4">
+        <i class="bi bi-x-octagon-fill text-danger fs-1 d-block mb-2"></i>
+        <h5 class="fw-bold mb-1">Verification Token Unrecognized</h5>
+        <p class="small text-muted mb-0">
+          No active civil service retirement clearance certificate could be located for token <code>{{ token }}</code>.
+          This document may be invalid or not yet approved.
+        </p>
+      </div>
+    {% endif %}
+
+    <div class="text-center pt-3 border-top small text-muted">
+      Protected by Cryptographic Public Service Verification Standards<br>
+      <a href="{{ url_for('index') }}" class="text-success fw-semibold me-2"><i class="bi bi-house me-1"></i> Public Portal Home</a> • 
+      <a href="{{ url_for('auth.login') }}" class="text-success fw-semibold ms-2"><i class="bi bi-box-arrow-in-right me-1"></i> Official Sign In</a>
+    </div>
+  </div>
+
+</body>
+</html>
