@@ -11,21 +11,23 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'nigerian-civil-service-secure-key-2026-fgn-ret')
     
     # MySQL Database Configuration
-    # Supports DATABASE_URL (e.g. Railway), MYSQL_URL, or discrete credentials
-    MYSQL_USER = os.environ.get('MYSQL_USER', 'root')
-    MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD', '')
-    MYSQL_HOST = os.environ.get('MYSQL_HOST', 'localhost')
-    MYSQL_PORT = os.environ.get('MYSQL_PORT', '3306')
-    MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE', 'retirement_clearance_db')
+    # Supports DATABASE_URL (e.g. Railway), MYSQL_URL, or discrete credentials (with or without underscores)
+    MYSQL_USER = os.environ.get('MYSQL_USER') or os.environ.get('MYSQLUSER', 'root')
+    MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD') or os.environ.get('MYSQLPASSWORD', '')
+    MYSQL_HOST = os.environ.get('MYSQL_HOST') or os.environ.get('MYSQLHOST', 'localhost')
+    MYSQL_PORT = os.environ.get('MYSQL_PORT') or os.environ.get('MYSQLPORT', '3306')
+    MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE') or os.environ.get('MYSQLDATABASE', 'retirement_clearance_db')
     
     DATABASE_URL = os.environ.get('DATABASE_URL') or os.environ.get('MYSQL_URL')
     if DATABASE_URL:
         # Normalize postgres/mysql URLs if supplied by cloud providers
         if DATABASE_URL.startswith('mysql://'):
             DATABASE_URL = DATABASE_URL.replace('mysql://', 'mysql+pymysql://', 1)
+        elif DATABASE_URL.startswith('postgres://'):
+            DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
         SQLALCHEMY_DATABASE_URI = DATABASE_URL
     else:
-        # Standard local / XAMPP MySQL connection via PyMySQL
+        # Standard local / XAMPP or discrete MySQL connection via PyMySQL
         SQLALCHEMY_DATABASE_URI = (
             f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}?charset=utf8mb4"
         )
