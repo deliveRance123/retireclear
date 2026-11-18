@@ -1,0 +1,12 @@
+# Nixpacks build configuration for Railway
+[phases.setup]
+nixPkgs = ["python312", "tesseract", "gcc"]
+
+[phases.install]
+cmds = [
+  "pip install --upgrade pip",
+  "pip install -r requirements.txt gunicorn"
+]
+
+[start]
+cmd = "gunicorn wsgi:app --bind 0.0.0.0:${PORT:-5000} --workers 2 --timeout 120"

@@ -1,7 +1,13 @@
 import os
 import re
-import cv2
-import numpy as np
+try:
+    import cv2
+    import numpy as np
+    HAS_OPENCV = True
+except Exception as e:
+    HAS_OPENCV = False
+    cv2 = None
+    np = None
 from PIL import Image
 import pytesseract
 from flask import current_app
@@ -13,7 +19,10 @@ class OCRService:
     def _preprocess_image(image_path):
         """
         Enhance image contrast and remove noise using OpenCV prior to OCR.
+        Falls back to PIL image opening if OpenCV is unavailable.
         """
+        if not HAS_OPENCV or cv2 is None:
+            return Image.open(image_path)
         try:
             img = cv2.imread(image_path)
             if img is None:
