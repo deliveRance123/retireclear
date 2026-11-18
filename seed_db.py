@@ -15,10 +15,10 @@ from app.models.audit import AuditLog
 from app.models.notification import Notification
 from app.services.certificate_service import CertificateService
 
-def seed_database(target_app=None):
-    if target_app is None:
-        target_app = create_app(os.environ.get('FLASK_CONFIG', 'default'))
-    with target_app.app_context():
+def seed_database(app=None):
+    if app is None:
+        app = create_app(os.environ.get('FLASK_CONFIG', 'default'))
+    with app.app_context():
         print("[*] Creating database tables if not existing...")
         db.create_all()
 
