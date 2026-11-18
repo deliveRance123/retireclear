@@ -14,12 +14,20 @@ def create_app(config_name='default'):
     migrate.init_app(app, db)
     csrf.init_app(app)
     
-    # Ensure Storage Directories
-    with app.app_context():
-        upload_base = app.config.get('UPLOAD_FOLDER', os.path.join(app.root_path, '..', 'uploads'))
+    # Ensure Storage Directories safely
+    try:
+        # On Vercel or read-only serverless environments, always use /tmp/uploads
+        if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'):
+            upload_base = '/tmp/uploads'
+        else:
+            upload_base = app.config.get('UPLOAD_FOLDER', os.path.join(app.root_path, '..', 'uploads'))
+            
         os.makedirs(os.path.join(upload_base, 'documents'), exist_ok=True)
         os.makedirs(os.path.join(upload_base, 'passports'), exist_ok=True)
         os.makedirs(os.path.join(upload_base, 'certificates'), exist_ok=True)
+        app.config['UPLOAD_FOLDER'] = upload_base
+    except Exception as e:
+        print(f"[Storage Directory Init Notice] {e}")
 
     # Register Blueprints
     from app.auth import auth_bp

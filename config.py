@@ -33,10 +33,14 @@ class Config:
             
         SQLALCHEMY_DATABASE_URI = DATABASE_URL
     else:
-        # Standard local / XAMPP or discrete MySQL connection via PyMySQL
-        SQLALCHEMY_DATABASE_URI = (
-            f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}?charset=utf8mb4"
-        )
+        # If in a cloud/serverless environment without a DB set, fall back to in-memory SQLite so the site never crashes
+        if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'):
+            SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/fallback.db'
+        else:
+            # Standard local / XAMPP or discrete MySQL connection via PyMySQL
+            SQLALCHEMY_DATABASE_URI = (
+                f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}?charset=utf8mb4"
+            )
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
@@ -52,8 +56,8 @@ class Config:
     
     # File Uploads
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB max request size
-    if os.environ.get('VERCEL'):
-        UPLOAD_FOLDER = os.path.join('/tmp', 'uploads')
+    if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'):
+        UPLOAD_FOLDER = '/tmp/uploads'
     else:
         UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
     ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
