@@ -25,7 +25,9 @@ class Config:
         if DATABASE_URL.startswith('mysql://'):
             DATABASE_URL = DATABASE_URL.replace('mysql://', 'mysql+pymysql://', 1)
         elif DATABASE_URL.startswith('postgres://'):
-            DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+            DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql+psycopg2://', 1)
+        elif DATABASE_URL.startswith('postgresql://') and not DATABASE_URL.startswith('postgresql+'):
+            DATABASE_URL = DATABASE_URL.replace('postgresql://', 'postgresql+psycopg2://', 1)
         
         # Sanitize channel_binding parameter if present (can fail on serverless libpq builds)
         if 'channel_binding=' in DATABASE_URL:
