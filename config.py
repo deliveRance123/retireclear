@@ -33,8 +33,8 @@ class Config:
             
         SQLALCHEMY_DATABASE_URI = DATABASE_URL
     else:
-        # If in a cloud/serverless environment without a DB set, fall back to in-memory SQLite so the site never crashes
-        if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'):
+        # If in a cloud/serverless environment without a DB set, fall back to SQLite so the site never crashes
+        if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME') or os.environ.get('RENDER'):
             SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/fallback.db'
         else:
             # Standard local / XAMPP or discrete MySQL connection via PyMySQL

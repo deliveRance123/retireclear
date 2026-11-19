@@ -16,8 +16,8 @@ def create_app(config_name='default'):
     
     # Ensure Storage Directories safely
     try:
-        # On Vercel or read-only serverless environments, always use /tmp/uploads
-        if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'):
+        # On Vercel, Render or read-only serverless environments, safely use /tmp/uploads
+        if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME') or os.environ.get('RENDER'):
             upload_base = '/tmp/uploads'
         else:
             upload_base = app.config.get('UPLOAD_FOLDER', os.path.join(app.root_path, '..', 'uploads'))

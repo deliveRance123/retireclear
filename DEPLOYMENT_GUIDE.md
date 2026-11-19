@@ -1,13 +1,13 @@
-# Vercel Production Deployment Guide — RetireClear Portal
-**National Automated Retirement Clearance and Verification System**
+# Render Production Deployment Guide — RetireClear Portal
+**AI-Integrated Automated Retirement Clearance and Verification System for Civil Servants**
 
-This guide provides the exact steps to deploy **RetireClear** to **Vercel** with **Neon Serverless PostgreSQL**.
+This guide provides the simple, step-by-step instructions to deploy **RetireClear** to **Render** with **Neon Serverless PostgreSQL**.
 
 ---
 
 ## 1. Prerequisites
 
-1. Your code is on GitHub: [https://github.com/deliveRance123/retireclear](https://github.com/deliveRance123/retireclear)
+1. Your repository is on GitHub: [https://github.com/deliveRance123/retireclear](https://github.com/deliveRance123/retireclear)
 2. Your Neon PostgreSQL Database URL:
    ```text
    postgresql://neondb_owner:npg_icZea7Rk8bfF@ep-winter-morning-bel94mhq-pooler.c-9.us-east-2.aws.neon.tech/neondb?sslmode=require
@@ -15,34 +15,60 @@ This guide provides the exact steps to deploy **RetireClear** to **Vercel** with
 
 ---
 
-## 2. Deploying on Vercel (3 Steps)
+## 2. Deploying on Render (Step-by-Step)
 
-### Step 1: Import Project in Vercel
-1. Log in to your [Vercel Dashboard](https://vercel.com/dashboard).
-2. Click **"Add New..."** $\rightarrow$ **"Project"**.
-3. Under *Import Git Repository*, find **`deliveRance123/retireclear`** and click **Import**.
+### Option A: Standard Web Service (Recommended & Fastest)
 
-### Step 2: Configure Environment Variables
-Before clicking Deploy, expand the **Environment Variables** section and add the following 3 variables:
+1. Go to your [Render Dashboard](https://dashboard.render.com/).
+2. Click **New +** $\rightarrow$ select **Web Service**.
+3. Select **Build and deploy from a Git repository** $\rightarrow$ click **Next**.
+4. Connect or select your GitHub repository: **`deliveRance123/retireclear`** (branch: `main`).
+5. Configure the service settings:
+   - **Name**: `retireclear` (or any name you prefer)
+   - **Region**: Closest to you (e.g., `Frankfurt` or `Oregon`)
+   - **Branch**: `main`
+   - **Root Directory**: *(leave blank)*
+   - **Runtime**: `Python 3`
+   - **Build Command**:
+     ```bash
+     pip install -r requirements.txt
+     ```
+   - **Start Command**:
+     ```bash
+     gunicorn wsgi:app --bind 0.0.0.0:$PORT
+     ```
+   - **Instance Type**: `Free`
 
-| Key | Value | Description |
-| :--- | :--- | :--- |
-| `DATABASE_URL` | `postgresql://neondb_owner:npg_icZea7Rk8bfF@ep-winter-morning-bel94mhq-pooler.c-9.us-east-2.aws.neon.tech/neondb?sslmode=require` | Connection to your Neon PostgreSQL cloud database |
-| `SECRET_KEY` | `fgn-retireclear-production-key-2026-secure` | Application cryptographic session key |
-| `FLASK_CONFIG` | `production` | Enables production mode with pooled database engine |
+6. Scroll down to **Environment Variables** and add the following 3 variables:
 
-> **Important:** Do NOT wrap values in quotes when pasting them into the Vercel dashboard.
+   | Key | Value |
+   | :--- | :--- |
+   | `DATABASE_URL` | `postgresql://neondb_owner:npg_icZea7Rk8bfF@ep-winter-morning-bel94mhq-pooler.c-9.us-east-2.aws.neon.tech/neondb?sslmode=require` |
+   | `FLASK_CONFIG` | `production` |
+   | `SECRET_KEY` | `nigerian-civil-service-secure-key-2026-fgn-ret` |
+   | `PYTHON_VERSION` | `3.12.8` |
 
-### Step 3: Deploy
-1. Click **Deploy**.
-2. Vercel will install dependencies via `@vercel/python`, configure the serverless function, and issue your live URL:
-   `https://retireclear-xyz.vercel.app`
+7. Click **Create Web Service**.
 
 ---
 
-## 3. How the Architecture Works on Vercel
+### Option B: Deploy via Blueprint (`render.yaml`)
 
-* **Entry Point:** `api/index.py` handles incoming HTTP requests as a Python WSGI Serverless Function.
-* **Routing:** `vercel.json` rewrites all incoming traffic to `api/index.py`, allowing Flask to serve all pages and static assets seamlessly.
-* **Database Resilience:** Database initialization is lazy (handled on the first web request via `@app.before_request`), preventing connection lockouts during Vercel's build phase.
-* **File Uploads:** In serverless mode (`VERCEL=1`), temporary uploads are safely directed to `/tmp/uploads` to comply with read-only lambda filesystems.
+Because the repository includes `render.yaml`:
+1. In the Render Dashboard, click **New +** $\rightarrow$ **Blueprint**.
+2. Select repository **`deliveRance123/retireclear`**.
+3. Render will detect `render.yaml` automatically.
+4. When prompted for environment variables, enter `DATABASE_URL`:
+   ```text
+   postgresql://neondb_owner:npg_icZea7Rk8bfF@ep-winter-morning-bel94mhq-pooler.c-9.us-east-2.aws.neon.tech/neondb?sslmode=require
+   ```
+5. Click **Apply**.
+
+---
+
+## 3. Why Render is More Reliable than Vercel for this Application
+
+1. **Persistent WSGI Server**: Render runs Gunicorn continuously, avoiding cold boot timeouts and 250MB bundle size limits.
+2. **Native PostgreSQL & Neon Compatibility**: Render containers have unrestricted outbound networking to Neon's pooled PostgreSQL servers.
+3. **No Complex Internal Rewrites**: Standard HTTP routing to `wsgi:app` without serverless routing translation issues.
+4. **Automatic Role Seeding**: The first time any visitor loads the home page, the database tables and user roles (`admin`, `hr_officer`, `pension_officer`, `auditor`, `civil_servant`) are automatically verified and seeded.
