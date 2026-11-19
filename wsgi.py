@@ -4,7 +4,7 @@ from app.extensions import db
 
 app = create_app(os.environ.get('FLASK_CONFIG', 'production'))
 
-# Lazy table and role initialization on first request
+# Lazy table and role initialization on first live user request
 _db_initialized = False
 
 @app.before_request
@@ -29,6 +29,10 @@ def ensure_tables_and_roles():
                 db.session.commit()
                 print("[Auto-Seed] Initialized essential roles successfully.")
         except Exception as e:
+            try:
+                db.session.rollback()
+            except Exception:
+                pass
             print(f"[Startup Database Notice] {e}")
 
 if __name__ == "__main__":
